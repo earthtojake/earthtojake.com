@@ -57,6 +57,28 @@ export default function RandomPage() {
             touchgrass.fm
           </a>
         </li>
+        <li>
+          <a
+            href="https://sim.earthtojake.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            online physics simulator
+          </a>
+        </li>
+        <li>
+          a{" "}
+          <a
+            href="https://mbb.earthtojake.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            game
+          </a>{" "}
+          i made in 8th grade
+        </li>
       </ul>
     </main>
   );
