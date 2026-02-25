@@ -1,0 +1,35 @@
+{
+  "name": "earthtojake-com",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "deadcode": "knip --files --no-config-hints",
+    "typecheck": "npm run deadcode && tsc -b --pretty false",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
+    "@vercel/analytics": "^1.6.1",
+    "lucide-react": "^0.575.0",
+    "next": "^16.1.6",
+    "perfect-freehand": "^1.2.3",
+    "photoswipe": "^5.4.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-photo-album": "^3.5.1",
+    "rough-notation": "^0.5.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "hersheytext": "^1.1.0",
+    "husky": "^9.1.7",
+    "knip": "^5.85.0",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.7.2"
+  }
+}

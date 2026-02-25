@@ -1,0 +1,266 @@
+@import "tailwindcss";
+
+:root {
+  --landing-fixed-vh: 100vh;
+  --landing-fixed-vw: 100vw;
+  --hero-tray-scale: 0.75;
+  --hero-tray-height: 28px;
+  --hero-marker-width: 5.98rem;
+  --hero-marker-gap: 0.08rem;
+  --hero-tray-padding-inline: 0.64rem;
+  --slide-name-cycle-wrap-height: clamp(4.1rem, 13vw, 9.4rem);
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+  overflow-anchor: none;
+}
+
+:where(body, body *) {
+  text-transform: lowercase;
+}
+
+.whiteboard {
+  --whiteboard-frame-size: 20px;
+  --whiteboard-corner-size: calc(var(--whiteboard-frame-size) * 0.9);
+  --whiteboard-corner-falloff: calc(var(--whiteboard-corner-size) + 1px);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--color-white);
+  border-radius: 2px;
+  border: var(--whiteboard-frame-size) solid transparent;
+  background:
+    linear-gradient(var(--color-white), var(--color-white)) padding-box,
+    linear-gradient(
+      90deg,
+      var(--color-slate-200) 0%,
+      var(--color-slate-400) 11%,
+      var(--color-slate-100) 23%,
+      var(--color-slate-300) 36%,
+      var(--color-slate-100) 50%,
+      var(--color-slate-300) 64%,
+      var(--color-slate-100) 77%,
+      var(--color-slate-400) 90%,
+      var(--color-slate-200) 100%
+    ) border-box;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-white) 90%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--color-slate-500) 50%, transparent),
+    inset 1px 0 0 color-mix(in oklab, var(--color-white) 55%, transparent),
+    inset -1px 0 0 color-mix(in oklab, var(--color-slate-500) 38%, transparent),
+    0 8px 20px color-mix(in oklab, var(--color-black) 14%, transparent);
+  overflow: visible;
+  isolation: isolate;
+}
+
+.whiteboard::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--whiteboard-frame-size));
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-white) 45%, transparent),
+      transparent
+    )
+      left / 16px 100% no-repeat,
+    linear-gradient(
+      270deg,
+      color-mix(in oklab, var(--color-white) 35%, transparent),
+      transparent
+    )
+      right / 14px 100% no-repeat,
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-white) 70%, transparent),
+      transparent
+    )
+      top / 100% 12px no-repeat,
+    linear-gradient(
+      0deg,
+      color-mix(in oklab, var(--color-white) 45%, transparent),
+      transparent
+    )
+      bottom / 100% 10px no-repeat;
+}
+
+.whiteboard::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--whiteboard-frame-size));
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at left top,
+      var(--color-slate-700) 0 var(--whiteboard-corner-size),
+      transparent var(--whiteboard-corner-falloff)
+    ),
+    radial-gradient(
+      circle at right top,
+      var(--color-slate-700) 0 var(--whiteboard-corner-size),
+      transparent var(--whiteboard-corner-falloff)
+    ),
+    radial-gradient(
+      circle at left bottom,
+      var(--color-slate-700) 0 var(--whiteboard-corner-size),
+      transparent var(--whiteboard-corner-falloff)
+    ),
+    radial-gradient(
+      circle at right bottom,
+      var(--color-slate-700) 0 var(--whiteboard-corner-size),
+      transparent var(--whiteboard-corner-falloff)
+    );
+}
+
+
+@media (max-width: 768px) {
+  :root {
+    --hero-tray-scale: 1;
+    --hero-marker-width: 6.3rem;
+    --hero-marker-gap: 0.24rem;
+    --hero-tray-padding-inline: 0.38rem;
+    --slide-name-cycle-wrap-height: clamp(4.5rem, 27vw, 7.5rem);
+  }
+}
+
+@keyframes name-font-cycle {
+  0%,
+  4.54% {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+  }
+
+  4.55%,
+  9.09% {
+    font-family: "Poppins", "Inter", system-ui, sans-serif;
+  }
+
+  9.1%,
+  13.63% {
+    font-family: "Fira Sans", "Inter", system-ui, sans-serif;
+  }
+
+  13.64%,
+  18.18% {
+    font-family: "Nunito Sans", "Inter", system-ui, sans-serif;
+  }
+
+  18.19%,
+  22.72% {
+    font-family: "Oswald", "Inter", "Arial Narrow", sans-serif;
+  }
+
+  22.73%,
+  27.27% {
+    font-family: "Roboto Slab", "Times New Roman", serif;
+  }
+
+  27.28%,
+  31.81% {
+    font-family: "Bree Serif", "Times New Roman", serif;
+  }
+
+  31.82%,
+  36.36% {
+    font-family: "Merriweather", "Times New Roman", serif;
+  }
+
+  36.37%,
+  40.9% {
+    font-family: "DynaPuff", "Inter", system-ui, sans-serif;
+  }
+
+  40.91%,
+  45.45% {
+    font-family: "PT Serif", "Times New Roman", serif;
+  }
+
+  45.46%,
+  50% {
+    font-family: "Patrick Hand", "Inter", system-ui, sans-serif;
+  }
+
+  50.01%,
+  54.54% {
+    font-family: "Lora", "Times New Roman", serif;
+  }
+
+  54.55%,
+  59.09% {
+    font-family: "Merienda", "Inter", system-ui, sans-serif;
+  }
+
+  59.1%,
+  63.63% {
+    font-family: "Inconsolata", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  63.64%,
+  68.18% {
+    font-family: "Reenie Beanie", "Inter", system-ui, sans-serif;
+  }
+
+  68.19%,
+  72.72% {
+    font-family: "Mountains of Christmas", "Inter", system-ui, sans-serif;
+  }
+
+  72.73%,
+  77.27% {
+    font-family: "Indie Flower", "Inter", system-ui, sans-serif;
+  }
+
+  77.28%,
+  81.81% {
+    font-family: "Freckle Face", "Inter", system-ui, sans-serif;
+  }
+
+  81.82%,
+  86.36% {
+    font-family: "Barriecito", "Inter", system-ui, sans-serif;
+  }
+
+  86.37%,
+  90.9% {
+    font-family: "Quantico", "Inter", system-ui, sans-serif;
+  }
+
+  90.91%,
+  95.45% {
+    font-family: "Geo", "Inter", system-ui, sans-serif;
+  }
+
+  95.46%,
+  100% {
+    font-family: "VT323", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+}
+
+@keyframes bouncing-fun-facts-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
