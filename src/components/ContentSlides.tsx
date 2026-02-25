@@ -1267,7 +1267,7 @@ function ContentSlideViewport({
           >
             <div
               className="relative h-full w-full"
-              onClick={() => {
+              onPointerDown={() => {
                 if (!skipRevealDelay) {
                   setSkipRevealDelay(true);
                 }

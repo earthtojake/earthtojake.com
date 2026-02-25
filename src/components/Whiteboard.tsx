@@ -1274,7 +1274,9 @@ export function Whiteboard({
       startStroke(
         pointFromPointerEvent(event, drawSurfaceRef.current, drawLayerMetrics),
       );
-      event.preventDefault();
+      if (event.pointerType === "touch") {
+        event.preventDefault();
+      }
     },
     [drawLayerMetrics, isDrawingEnabled, startStroke],
   );
