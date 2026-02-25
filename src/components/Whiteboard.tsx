@@ -1360,7 +1360,7 @@ export function Whiteboard({
       onLostPointerCapture={finishFromPointerEvent}
     >
       <svg
-        className="pointer-events-none absolute z-[3] overflow-hidden inset-[var(--whiteboard-frame-size)] w-[calc(100%-(var(--whiteboard-frame-size)*2))] h-[calc(100%-(var(--whiteboard-frame-size)*2))]"
+        className="pointer-events-none absolute z-[3] overflow-hidden inset-0 w-full h-full"
         aria-hidden="true"
         ref={drawSurfaceRef}
       >

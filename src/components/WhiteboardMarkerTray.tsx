@@ -37,7 +37,7 @@ const trayBaseClassName =
 const trayDesktopClassName =
   "left-[max(0px,env(safe-area-inset-left,0px))] bottom-0 h-[var(--hero-tray-height)] items-end gap-[var(--hero-marker-gap)] px-[var(--hero-tray-padding-inline)] border border-black/70 border-t-white/10 rounded-[2px] bg-[linear-gradient(180deg,var(--color-slate-700)_0%,var(--color-slate-950)_100%)] shadow-sm [transform:scale(var(--hero-tray-scale))] [transform-origin:left_bottom]";
 const trayMobileClassName =
-  "left-[calc(max(0px,env(safe-area-inset-left,0px))-(var(--hero-marker-width)*2/3))] bottom-[calc(env(safe-area-inset-bottom,0px)+var(--whiteboard-frame-size,20px)+0.25rem)] h-auto w-[var(--hero-marker-width)] flex-col items-center justify-end gap-[0.2rem] border-0 bg-transparent px-0 shadow-none before:hidden after:hidden";
+  "left-[calc(max(0px,env(safe-area-inset-left,0px))-(var(--hero-marker-width)*2/3))] bottom-[calc(env(safe-area-inset-bottom,0px)+0.25rem)] h-auto w-[var(--hero-marker-width)] flex-col items-center justify-end gap-[0.2rem] border-0 bg-transparent px-0 shadow-none before:hidden after:hidden";
 const trayRailClassName =
   "pointer-events-none absolute left-[0.36rem] right-[0.36rem] top-px h-px rounded-full bg-linear-to-r from-white/40 to-transparent";
 const traySlotBaseClassName = "relative z-[1] block w-[var(--hero-marker-width)] aspect-[148/44]";

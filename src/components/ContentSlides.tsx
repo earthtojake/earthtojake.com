@@ -1254,7 +1254,7 @@ function ContentSlideViewport({
   }, [entry.nextAnchorId, revealed, skipRevealDelay]);
 
   return (
-    <ViewportContainer stackOrder={stackOrder} heightMultiplier={1.4}>
+    <ViewportContainer stackOrder={stackOrder}>
       <div ref={targetRef} className="relative h-full w-full">
         <ResponsiveViewportContainer>
           <Whiteboard
@@ -1274,7 +1274,7 @@ function ContentSlideViewport({
                 slideIndex={stackOrder}
               />
               {!skipRevealDelay ? (
-                <div className="pointer-events-none absolute bottom-[calc(var(--whiteboard-frame-size)+0.2rem)] right-[calc(var(--whiteboard-frame-size)+0.2rem)] z-[5] md:bottom-[calc(var(--whiteboard-frame-size)+0.42rem)] md:right-[calc(var(--whiteboard-frame-size)+0.42rem)]">
+                <div className="pointer-events-none absolute bottom-2 right-2 z-[5] md:bottom-3 md:right-3">
                   <button
                     type="button"
                     className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-full border border-slate-900/30 bg-white/92 px-3 text-xs font-medium text-slate-900 shadow-sm backdrop-blur-[2px] transition-[background-color,border-color] duration-120 ease-[ease] hover:border-slate-900 hover:bg-white focus-visible:outline-2 focus-visible:outline-slate-900 focus-visible:outline-offset-2"
@@ -1286,7 +1286,7 @@ function ContentSlideViewport({
                   </button>
                 </div>
               ) : entry.nextAnchorId ? (
-                <div className="pointer-events-none absolute bottom-[calc(var(--whiteboard-frame-size)+0.2rem)] right-[calc(var(--whiteboard-frame-size)+0.2rem)] z-[5] md:bottom-[calc(var(--whiteboard-frame-size)+0.42rem)] md:right-[calc(var(--whiteboard-frame-size)+0.42rem)]">
+                <div className="pointer-events-none absolute bottom-2 right-2 z-[5] md:bottom-3 md:right-3">
                   <button
                     type="button"
                     className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-full border border-slate-900/30 bg-white/92 px-3 text-xs font-medium text-slate-900 shadow-sm backdrop-blur-[2px] transition-[background-color,border-color] duration-120 ease-[ease] hover:border-slate-900 hover:bg-white focus-visible:outline-2 focus-visible:outline-slate-900 focus-visible:outline-offset-2"

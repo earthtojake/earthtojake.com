@@ -37,99 +37,12 @@ body {
 }
 
 .whiteboard {
-  --whiteboard-frame-size: 20px;
-  --whiteboard-corner-size: calc(var(--whiteboard-frame-size) * 0.9);
-  --whiteboard-corner-falloff: calc(var(--whiteboard-corner-size) + 1px);
   position: relative;
   width: 100%;
   height: 100%;
   background: var(--color-white);
-  border-radius: 2px;
-  border: var(--whiteboard-frame-size) solid transparent;
-  background:
-    linear-gradient(var(--color-white), var(--color-white)) padding-box,
-    linear-gradient(
-      90deg,
-      var(--color-slate-200) 0%,
-      var(--color-slate-400) 11%,
-      var(--color-slate-100) 23%,
-      var(--color-slate-300) 36%,
-      var(--color-slate-100) 50%,
-      var(--color-slate-300) 64%,
-      var(--color-slate-100) 77%,
-      var(--color-slate-400) 90%,
-      var(--color-slate-200) 100%
-    ) border-box;
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-white) 90%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, var(--color-slate-500) 50%, transparent),
-    inset 1px 0 0 color-mix(in oklab, var(--color-white) 55%, transparent),
-    inset -1px 0 0 color-mix(in oklab, var(--color-slate-500) 38%, transparent),
-    0 8px 20px color-mix(in oklab, var(--color-black) 14%, transparent);
   overflow: visible;
   isolation: isolate;
-}
-
-.whiteboard::before {
-  content: "";
-  position: absolute;
-  inset: calc(-1 * var(--whiteboard-frame-size));
-  z-index: 1;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      90deg,
-      color-mix(in oklab, var(--color-white) 45%, transparent),
-      transparent
-    )
-      left / 16px 100% no-repeat,
-    linear-gradient(
-      270deg,
-      color-mix(in oklab, var(--color-white) 35%, transparent),
-      transparent
-    )
-      right / 14px 100% no-repeat,
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-white) 70%, transparent),
-      transparent
-    )
-      top / 100% 12px no-repeat,
-    linear-gradient(
-      0deg,
-      color-mix(in oklab, var(--color-white) 45%, transparent),
-      transparent
-    )
-      bottom / 100% 10px no-repeat;
-}
-
-.whiteboard::after {
-  content: "";
-  position: absolute;
-  inset: calc(-1 * var(--whiteboard-frame-size));
-  z-index: 4;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      circle at left top,
-      var(--color-slate-700) 0 var(--whiteboard-corner-size),
-      transparent var(--whiteboard-corner-falloff)
-    ),
-    radial-gradient(
-      circle at right top,
-      var(--color-slate-700) 0 var(--whiteboard-corner-size),
-      transparent var(--whiteboard-corner-falloff)
-    ),
-    radial-gradient(
-      circle at left bottom,
-      var(--color-slate-700) 0 var(--whiteboard-corner-size),
-      transparent var(--whiteboard-corner-falloff)
-    ),
-    radial-gradient(
-      circle at right bottom,
-      var(--color-slate-700) 0 var(--whiteboard-corner-size),
-      transparent var(--whiteboard-corner-falloff)
-    );
 }
 
 
