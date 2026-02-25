@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const speed = 0.06; // pixels per ms (1.5x of original 0.04)
-const frameSize = 20; // matches --whiteboard-frame-size
+const frameSize = 0;
 const appearDelayMs = 5000;
 const fadeInDurationMs = 600;
 

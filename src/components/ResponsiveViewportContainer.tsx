@@ -134,7 +134,7 @@ export function ResponsiveViewportContainer({
   }, [useJavaScriptViewportSizing]);
 
   const rootClassName = [
-    "sticky top-0 h-screen min-h-screen w-full max-w-full supports-[height:100dvh]:h-[100dvh] supports-[height:100dvh]:min-h-[100dvh]",
+    "h-screen min-h-screen w-full max-w-full supports-[height:100dvh]:h-[100dvh] supports-[height:100dvh]:min-h-[100dvh]",
     className ?? "",
   ]
     .filter(Boolean)

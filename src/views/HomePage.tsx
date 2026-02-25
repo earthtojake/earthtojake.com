@@ -475,7 +475,7 @@ export function HomePage() {
           setSelectedMarketId={setSelectedMarkerId}
         />
 
-        <ViewportContainer stackOrder={0} heightMultiplier={1.25}>
+        <ViewportContainer stackOrder={0}>
           <div className="relative h-full w-full">
             <ResponsiveViewportContainer>
               <Whiteboard

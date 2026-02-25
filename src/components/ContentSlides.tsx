@@ -1255,7 +1255,7 @@ function ContentSlideViewport({
   }, [entry.nextAnchorId, revealed, skipRevealDelay]);
 
   return (
-    <ViewportContainer stackOrder={stackOrder} heightMultiplier={1.4}>
+    <ViewportContainer stackOrder={stackOrder} className="border-t border-slate-300">
       <div ref={targetRef} className="relative h-full w-full">
         <ResponsiveViewportContainer>
           <Whiteboard
@@ -1265,7 +1265,14 @@ function ContentSlideViewport({
             selectedMarkerColor={selectedMarkerColor}
             selectedToolId={selectedToolId}
           >
-            <div className="relative h-full w-full">
+            <div
+              className="relative h-full w-full"
+              onClick={() => {
+                if (!skipRevealDelay) {
+                  setSkipRevealDelay(true);
+                }
+              }}
+            >
               <Slide
                 id={entry.anchorId}
                 revealed={revealed}
@@ -1274,41 +1281,6 @@ function ContentSlideViewport({
                 rowRevealDurationMs={rowRevealDurationMs}
                 slideIndex={stackOrder}
               />
-              {!skipRevealDelay ? (
-                <div className="pointer-events-none absolute bottom-[calc(var(--whiteboard-frame-size)+0.2rem)] right-[calc(var(--whiteboard-frame-size)+0.2rem)] z-[5] md:bottom-[calc(var(--whiteboard-frame-size)+0.42rem)] md:right-[calc(var(--whiteboard-frame-size)+0.42rem)]">
-                  <button
-                    type="button"
-                    className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-full border border-slate-900/30 bg-white/92 px-3 text-xs font-medium text-slate-900 shadow-sm backdrop-blur-[2px] transition-[background-color,border-color] duration-120 ease-[ease] hover:border-slate-900 hover:bg-white focus-visible:outline-2 focus-visible:outline-slate-900 focus-visible:outline-offset-2"
-                    onClick={() => {
-                      setSkipRevealDelay(true);
-                    }}
-                  >
-                    skip
-                  </button>
-                </div>
-              ) : entry.nextAnchorId ? (
-                <div className="pointer-events-none absolute bottom-[calc(var(--whiteboard-frame-size)+0.2rem)] right-[calc(var(--whiteboard-frame-size)+0.2rem)] z-[5] md:bottom-[calc(var(--whiteboard-frame-size)+0.42rem)] md:right-[calc(var(--whiteboard-frame-size)+0.42rem)]">
-                  <button
-                    type="button"
-                    className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-full border border-slate-900/30 bg-white/92 px-3 text-xs font-medium text-slate-900 shadow-sm backdrop-blur-[2px] transition-[background-color,border-color] duration-120 ease-[ease] hover:border-slate-900 hover:bg-white focus-visible:outline-2 focus-visible:outline-slate-900 focus-visible:outline-offset-2"
-                    onClick={() => {
-                      const nextAnchorId = entry.nextAnchorId;
-                      if (!nextAnchorId) {
-                        return;
-                      }
-
-                      const nextSlide = document.getElementById(nextAnchorId);
-                      if (!nextSlide) {
-                        return;
-                      }
-
-                      nextSlide.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
-                  >
-                    next
-                  </button>
-                </div>
-              ) : null}
             </div>
           </Whiteboard>
         </ResponsiveViewportContainer>
