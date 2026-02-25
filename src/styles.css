@@ -3,9 +3,9 @@
 :root {
   --landing-fixed-vh: 100vh;
   --landing-fixed-vw: 100vw;
-  --hero-tray-scale: 0.75;
-  --hero-tray-height: 28px;
-  --hero-marker-width: 5.98rem;
+  --hero-tray-scale: 0.6;
+  --hero-tray-height: 22px;
+  --hero-marker-width: 5rem;
   --hero-marker-gap: 0.08rem;
   --hero-tray-padding-inline: 0.64rem;
   --slide-name-cycle-wrap-height: clamp(4.1rem, 13vw, 9.4rem);
@@ -48,8 +48,8 @@ body {
 
 @media (max-width: 768px) {
   :root {
-    --hero-tray-scale: 1;
-    --hero-marker-width: 6.3rem;
+    --hero-tray-scale: 0.85;
+    --hero-marker-width: 5.4rem;
     --hero-marker-gap: 0.24rem;
     --hero-tray-padding-inline: 0.38rem;
     --slide-name-cycle-wrap-height: clamp(4.5rem, 27vw, 7.5rem);
