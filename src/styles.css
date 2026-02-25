@@ -27,7 +27,7 @@ body {
 body {
   background: var(--color-white);
   color: var(--color-black);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   overflow-x: hidden;
   overflow-anchor: none;
 }
