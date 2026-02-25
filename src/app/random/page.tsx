@@ -68,14 +68,16 @@ export default function RandomPage() {
           </a>
         </li>
         <li>
+          a{" "}
           <a
             href="https://mbb.earthtojake.com"
             target="_blank"
             rel="noopener noreferrer"
             className="underline"
           >
-            a game i made in grade 8
-          </a>
+            game
+          </a>{" "}
+          i made in 8th grade
         </li>
       </ul>
     </main>
