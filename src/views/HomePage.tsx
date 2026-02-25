@@ -485,11 +485,20 @@ export function HomePage() {
                 selectedMarkerColor={selectedMarkerColor}
                 selectedToolId={selectedMarkerId}
               >
-                <HeroSlide
-                  id={heroSlideAnchorId}
-                  revealed={true}
-                  skipRevealDelay={heroSkipRevealDelay}
-                />
+                <div
+                  className="relative h-full w-full"
+                  onClick={() => {
+                    if (!heroSkipRevealDelay) {
+                      setHeroSkipRevealDelay(true);
+                    }
+                  }}
+                >
+                  <HeroSlide
+                    id={heroSlideAnchorId}
+                    revealed={true}
+                    skipRevealDelay={heroSkipRevealDelay}
+                  />
+                </div>
               </Whiteboard>
             </ResponsiveViewportContainer>
             <BouncingFunFacts skipRevealDelay={heroSkipRevealDelay} />
