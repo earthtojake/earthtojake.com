@@ -487,7 +487,7 @@ export function HomePage() {
               >
                 <div
                   className="relative h-full w-full"
-                  onClick={() => {
+                  onPointerDown={() => {
                     if (!heroSkipRevealDelay) {
                       setHeroSkipRevealDelay(true);
                     }
