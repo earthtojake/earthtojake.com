@@ -7,7 +7,7 @@ import {
   type CSSProperties,
   type RefObject,
 } from "react";
-import deriveXyzDrawingPresetIndieFlower from "./drawings/title-derive-xyz.json";
+import deriveDrawingPresetIndieFlower from "./drawings/title-derive.json";
 import encounterDrawingPresetIndieFlower from "./drawings/title-encounter.json";
 import robotsDrawingPresetIndieFlower from "./drawings/title-robots.json";
 import snackDrawingPresetIndieFlower from "./drawings/title-snack.json";
@@ -206,8 +206,9 @@ const contentSlideWhiteboardPresetsByIndex: WhiteboardPresetConfig[] = [
   }),
   createContentSlideTitlePreset({
     id: "content-derive-title",
-    data: deriveXyzDrawingPresetIndieFlower as WhiteboardDrawingData,
+    data: deriveDrawingPresetIndieFlower as WhiteboardDrawingData,
     fillColor: UNDERLINE_ORANGE,
+    sizeScale: 0.75,
   }),
   createContentSlideTitlePreset({
     id: "content-robots-title",
