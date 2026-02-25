@@ -208,6 +208,7 @@ const contentSlideWhiteboardPresetsByIndex: WhiteboardPresetConfig[] = [
     id: "content-derive-title",
     data: deriveDrawingPresetIndieFlower as WhiteboardDrawingData,
     fillColor: UNDERLINE_ORANGE,
+    sizeScale: 0.75,
   }),
   createContentSlideTitlePreset({
     id: "content-robots-title",
