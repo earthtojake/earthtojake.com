@@ -155,7 +155,7 @@ export function BouncingFunFacts({ skipRevealDelay = false }: BouncingFunFactsPr
       <Link
         ref={linkRef}
         href="/random"
-        className="pointer-events-auto absolute left-0 top-0 text-xs text-slate-500 no-underline opacity-0 hover:text-slate-700"
+        className="pointer-events-auto absolute left-0 top-0 px-4 py-2 text-xs text-slate-500 no-underline opacity-0 hover:text-slate-700"
         style={{
           willChange: "transform, opacity",
           animation: `bouncing-fun-facts-fade-in ${fadeInDurationMs}ms ease-out forwards`,
