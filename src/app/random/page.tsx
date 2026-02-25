@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function FunFactsPage() {
+export default function RandomPage() {
   return (
     <main className="p-3 md:p-12">
       <Link
@@ -42,6 +42,20 @@ export default function FunFactsPage() {
         <li>
           lived in hong kong, sydney, san francisco, hawaii, sydney again, new
           york (in that order)
+        </li>
+      </ul>
+
+      <h1 className="mb-6 mt-12 text-3xl font-bold">random projects:</h1>
+      <ul className="list-disc space-y-2 pl-5 text-lg">
+        <li>
+          <a
+            href="https://touchgrass.fm"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            touchgrass.fm
+          </a>
         </li>
       </ul>
     </main>
