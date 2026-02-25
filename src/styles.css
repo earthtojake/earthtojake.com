@@ -3,7 +3,7 @@
 :root {
   --landing-fixed-vh: 100vh;
   --landing-fixed-vw: 100vw;
-  --hero-tray-scale: 0.6;
+  --hero-tray-scale: 0.9;
   --hero-tray-height: 22px;
   --hero-marker-width: 5rem;
   --hero-marker-gap: 0.08rem;
