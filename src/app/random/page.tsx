@@ -49,6 +49,16 @@ export default function RandomPage() {
       <ul className="list-disc space-y-2 pl-5 text-lg">
         <li>
           <a
+            href="https://github.com/earthtojake/text-to-cad"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            text-to-cad
+          </a>
+        </li>
+        <li>
+          <a
             href="https://touchgrass.fm"
             target="_blank"
             rel="noopener noreferrer"
