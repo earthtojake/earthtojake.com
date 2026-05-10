@@ -2,15 +2,13 @@ import { Check, Copy } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 const heroEmailAddressObfuscated = "jakehenryfitz[at]gmail[dot]com";
-const heroWhatsappNumberDigits = "16467853685";
-const heroWhatsappDmUrl = `https://wa.me/${heroWhatsappNumberDigits}?text=i%20like%20robots`;
 const heroDialogIds = {
   email: "hero-email-dialog",
 } as const;
 const heroCopySuccessDurationMs = 1000;
 const heroCopyFailureDurationMs = 1700;
 
-type HeroContactChannel = "x" | "email" | "github" | "linkedin" | "whatsapp";
+type HeroContactChannel = "x" | "email" | "github" | "linkedin";
 type HeroDialogChannel = "email";
 
 type HeroContactLink = {
@@ -28,7 +26,7 @@ type HeroContactBarProps = {
 const heroContactLinksByChannel: Record<HeroContactChannel, HeroContactLink> = {
   x: {
     id: "x",
-    href: "https://x.com/earthtojake_",
+    href: "https://x.com/soft_servo",
     label: "X",
     target: "_blank",
     rel: "noopener noreferrer",
@@ -49,13 +47,6 @@ const heroContactLinksByChannel: Record<HeroContactChannel, HeroContactLink> = {
     id: "linkedin",
     href: "https://www.linkedin.com/in/jake-fitzgerald-680855b1/",
     label: "LinkedIn",
-    target: "_blank",
-    rel: "noopener noreferrer",
-  },
-  whatsapp: {
-    id: "whatsapp",
-    href: heroWhatsappDmUrl,
-    label: "WhatsApp",
     target: "_blank",
     rel: "noopener noreferrer",
   },
@@ -150,14 +141,6 @@ const HeroContactIcon = memo(function HeroContactIcon({
     return (
       <svg className={heroIconClassName} viewBox="0 0 24 24" aria-hidden="true">
         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-      </svg>
-    );
-  }
-
-  if (channel === "whatsapp") {
-    return (
-      <svg className={heroIconClassName} viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M13.601 2.326A7.85 7.85 0 0 0 6.98.093C2.745 1.845.184 6.094.184 10.61c0 1.514.394 2.99 1.14 4.298L0 20l5.224-1.365a7.95 7.95 0 0 0 3.793.975h.003c4.234 0 7.798-4.249 7.798-8.763 0-2.34-.861-4.544-2.417-6.521m-4.57 14.46h-.003a6.63 6.63 0 0 1-3.39-.93l-.243-.144-3.098.809.828-3.02-.158-.246a6.63 6.63 0 0 1-1.02-3.53c0-3.665 2.983-6.648 6.65-6.648 1.773 0 3.435.691 4.69 1.946a6.6 6.6 0 0 1 1.947 4.69c0 3.667-2.984 6.65-6.65 6.65m3.646-4.977c-.199-.1-1.176-.579-1.358-.645-.182-.067-.315-.1-.448.1-.132.198-.512.645-.628.777-.116.132-.232.149-.43.05-.2-.1-.84-.31-1.6-.99-.592-.525-.992-1.174-1.108-1.372-.116-.2-.013-.305.087-.404.09-.09.2-.232.298-.348.1-.116.132-.198.199-.331.066-.132.033-.248-.017-.348-.05-.1-.448-1.08-.613-1.477-.161-.39-.325-.337-.448-.343l-.381-.007a.73.73 0 0 0-.53.248c-.182.2-.695.679-.695 1.654 0 .976.712 1.92.811 2.052.1.132 1.4 2.136 3.393 2.995.474.205.844.327 1.132.418.476.151.909.13 1.252.079.381-.057 1.176-.48 1.341-.943.166-.463.166-.86.116-.943-.05-.083-.182-.132-.381-.232" />
       </svg>
     );
   }

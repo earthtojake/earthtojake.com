@@ -23,29 +23,7 @@ export default function RandomPage() {
         </svg>
         back
       </Link>
-      <h1 className="mb-6 text-3xl font-bold">fun facts:</h1>
-      <ul className="list-disc space-y-2 pl-5 text-lg">
-        <li>once flew a plane over the golden gate bridge</li>
-        <li>trekked with gorillas</li>
-        <li>
-          was pranked by{" "}
-          <a
-            href="https://youtu.be/BgxO_WLSiMM?t=122&si=QMgqSm5Sc-dXXc-R"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            jimmy fallon
-          </a>
-        </li>
-        <li>love horror movies</li>
-        <li>
-          lived in hong kong, sydney, san francisco, hawaii, sydney again, new
-          york (in that order)
-        </li>
-      </ul>
-
-      <h1 className="mb-6 mt-12 text-3xl font-bold">random projects:</h1>
+      <h1 className="mb-6 text-3xl font-bold">projects:</h1>
       <ul className="list-disc space-y-2 pl-5 text-lg">
         <li>
           <a
@@ -74,7 +52,7 @@ export default function RandomPage() {
             rel="noopener noreferrer"
             className="underline"
           >
-            online physics simulator
+            multiplayer physics simulator
           </a>
         </li>
         <li>
@@ -88,6 +66,28 @@ export default function RandomPage() {
             game
           </a>{" "}
           i made in 8th grade
+        </li>
+      </ul>
+
+      <h1 className="mb-6 mt-12 text-3xl font-bold">fun facts:</h1>
+      <ul className="list-disc space-y-2 pl-5 text-lg">
+        <li>once flew a plane over the golden gate bridge</li>
+        <li>trekked with gorillas</li>
+        <li>
+          was pranked by{" "}
+          <a
+            href="https://youtu.be/BgxO_WLSiMM?t=122&si=QMgqSm5Sc-dXXc-R"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            jimmy fallon
+          </a>
+        </li>
+        <li>love horror movies</li>
+        <li>
+          lived in hong kong, sydney, san francisco, hawaii, sydney again, new
+          york (in that order)
         </li>
       </ul>
     </main>

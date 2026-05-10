@@ -962,7 +962,7 @@ function convertLegacySlideToSlide(
                 </span>
               ) : null}
               {suffixText}{" "}
-              <HeroContactBar channels={["x", "email", "whatsapp"]} />
+              <HeroContactBar channels={["x", "email"]} />
             </p>
           ),
         };
