@@ -26,7 +26,7 @@ type HeroContactBarProps = {
 const heroContactLinksByChannel: Record<HeroContactChannel, HeroContactLink> = {
   x: {
     id: "x",
-    href: "https://x.com/soft_servo",
+    href: "https://x.com/earthtojake",
     label: "X",
     target: "_blank",
     rel: "noopener noreferrer",
