@@ -34,6 +34,27 @@ export default function RandomPage() {
           >
             text-to-cad
           </a>
+          , a set of{" "}
+          <a
+            href="https://cadskills.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            skills
+          </a>{" "}
+          to generate 3d cad models
+        </li>
+        <li>
+          <a
+            href="https://www.step.parts"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            step.parts
+          </a>
+          , 12,000+ open source step parts
         </li>
         <li>
           <a
