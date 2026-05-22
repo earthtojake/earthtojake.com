@@ -27,25 +27,28 @@ import {
   REQUEST_SKIP_REVEAL_EVENT,
   type RequestSkipRevealDetail,
 } from "../reveal/skipRevealEvents";
+import { scaleRevealCadenceMs } from "../reveal/timing";
 
 const rowRevealUnderlineDelayMs = 0;
 const buildUnderlineRevealDurationMs = 520;
 const buildUnderlineColor = "var(--color-red-500)";
 const heroInterRowRevealDelayMs = 500;
 const heroRowRevealDurationMs = buildUnderlineRevealDurationMs;
+const heroRowRevealCadenceMs = scaleRevealCadenceMs(
+  heroRowRevealDurationMs + heroInterRowRevealDelayMs,
+);
 const heroFirstRowRevealStartMs = 0;
-const heroDeriveRevealStartMs =
-  heroFirstRowRevealStartMs +
-  heroRowRevealDurationMs +
-  heroInterRowRevealDelayMs;
-const heroBuildRevealStartMs =
-  heroDeriveRevealStartMs + heroRowRevealDurationMs + heroInterRowRevealDelayMs;
+const heroRobotsRevealStartMs =
+  heroFirstRowRevealStartMs + heroRowRevealCadenceMs;
+const heroProjectsRevealStartMs =
+  heroRobotsRevealStartMs + heroRowRevealCadenceMs;
 const heroContactsRevealStartMs =
-  heroBuildRevealStartMs + heroRowRevealDurationMs + heroInterRowRevealDelayMs;
+  heroProjectsRevealStartMs + heroRowRevealCadenceMs;
 const heroContactsRevealEndMs =
   heroContactsRevealStartMs + heroRowRevealDurationMs;
-const firstSlideAutoRevealDurationMs = heroContactsRevealEndMs + 320;
-const heroAutoRevealDelayAfterIntroMs = 250;
+const firstSlideAutoRevealDurationMs =
+  heroContactsRevealEndMs + scaleRevealCadenceMs(320);
+const heroAutoRevealDelayAfterIntroMs = scaleRevealCadenceMs(250);
 const heroIntroPreset: WhiteboardPresetConfig = {
   id: "hero-signature",
   data: heroEarthToDrawingPreset as WhiteboardDrawingData,
@@ -75,9 +78,9 @@ const heroIntroPreset: WhiteboardPresetConfig = {
     heightPct: { desktop: 2.5, mobile: 2 },
   },
   timing: {
-    pointDurationMs: 1.1,
-    minDurationMs: 950,
-    maxDurationMs: 2200,
+    pointDurationMs: 0.55,
+    minDurationMs: 475,
+    maxDurationMs: 1100,
     easeRampRatio: 0.06,
     delayMs: 0,
     playOnce: true,
@@ -163,7 +166,7 @@ const heroWhiteboardPresets: WhiteboardPresetConfig[] = [
       minDurationMs: 900,
       maxDurationMs: 1800,
       easeRampRatio: 0.06,
-      delayMs: heroFinalRevealStartDelayMs + 140,
+      delayMs: heroFinalRevealStartDelayMs + scaleRevealCadenceMs(140),
       playOnce: true,
     },
   },
@@ -201,7 +204,7 @@ const heroWhiteboardPresets: WhiteboardPresetConfig[] = [
       minDurationMs: 900,
       maxDurationMs: 1900,
       easeRampRatio: 0.06,
-      delayMs: heroFinalRevealStartDelayMs + 300,
+      delayMs: heroFinalRevealStartDelayMs + scaleRevealCadenceMs(300),
       playOnce: true,
     },
   },
@@ -239,7 +242,7 @@ const heroWhiteboardPresets: WhiteboardPresetConfig[] = [
       minDurationMs: 900,
       maxDurationMs: 1900,
       easeRampRatio: 0.06,
-      delayMs: heroFinalRevealStartDelayMs + 460,
+      delayMs: heroFinalRevealStartDelayMs + scaleRevealCadenceMs(460),
       playOnce: true,
     },
   },
@@ -276,7 +279,7 @@ const heroWhiteboardPresets: WhiteboardPresetConfig[] = [
       minDurationMs: 1100,
       maxDurationMs: 3000,
       easeRampRatio: 0.06,
-      delayMs: heroFinalRevealStartDelayMs + 620,
+      delayMs: heroFinalRevealStartDelayMs + scaleRevealCadenceMs(620),
       playOnce: true,
     },
   },

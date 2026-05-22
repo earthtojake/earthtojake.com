@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { scaleRevealCadenceMs } from "../reveal/timing";
 
 const speed = 0.06; // pixels per ms (1.5x of original 0.04)
 const frameSize = 0;
-const appearDelayMs = 5000;
+const appearDelayMs = scaleRevealCadenceMs(5000);
 const fadeInDurationMs = 600;
 
 function getVisibleHeight(container: HTMLElement): number {
@@ -154,7 +155,7 @@ export function BouncingFunFacts({ skipRevealDelay = false }: BouncingFunFactsPr
     >
       <Link
         ref={linkRef}
-        href="/random"
+        href="/funfacts"
         className="pointer-events-auto absolute left-0 top-0 px-4 py-2 text-xs text-slate-500 no-underline opacity-0 hover:text-slate-700"
         style={{
           willChange: "transform, opacity",

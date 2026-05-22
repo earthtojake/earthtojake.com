@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import heroEarthToDrawingPreset from "./drawings/earth-to.json";
-import { UNDERLINE_ORANGE } from "../colors";
+import { UNDERLINE_BLUE, UNDERLINE_GREEN } from "../colors";
 import { SHARED_UNDERLINE_LAYERS } from "../reveal/notationPresets";
 import {
   Slide,
@@ -13,6 +13,7 @@ import {
   type WhiteboardDrawingData,
   type WhiteboardPresetConfig,
 } from "./Whiteboard";
+import { scaleRevealCadenceMs } from "../reveal/timing";
 
 const nameCycleSample = "Jake";
 const nameCycleLoadGraceMs = 220;
@@ -43,11 +44,14 @@ const nameCycleFontFamilies = [
   "VT323",
 ] as const;
 
-const rowRevealUnderlineDelayMs = 300;
+const rowRevealUnderlineDelayMs = scaleRevealCadenceMs(300);
 const rowRevealDurationMs = 520;
 const buildUnderlineColor = "var(--color-red-500)";
 const heroInterRowRevealDelayMs = 500;
-const heroAutoRevealDelayAfterIntroMs = 250;
+const heroRowRevealCadenceMs = scaleRevealCadenceMs(
+  rowRevealDurationMs + heroInterRowRevealDelayMs,
+);
+const heroAutoRevealDelayAfterIntroMs = scaleRevealCadenceMs(250);
 const heroIntroPresetForRevealTiming: WhiteboardPresetConfig = {
   id: "hero-signature-reveal-timing",
   data: heroEarthToDrawingPreset as WhiteboardDrawingData,
@@ -57,9 +61,9 @@ const heroIntroPresetForRevealTiming: WhiteboardPresetConfig = {
     heightPct: 2.5,
   },
   timing: {
-    pointDurationMs: 1.1,
-    minDurationMs: 950,
-    maxDurationMs: 2200,
+    pointDurationMs: 0.55,
+    minDurationMs: 475,
+    maxDurationMs: 1100,
     easeRampRatio: 0.06,
     delayMs: 0,
     playOnce: true,
@@ -68,12 +72,12 @@ const heroIntroPresetForRevealTiming: WhiteboardPresetConfig = {
 const heroFirstRowRevealDelayMs =
   estimateWhiteboardPresetIntroDurationMs(heroIntroPresetForRevealTiming) +
   heroAutoRevealDelayAfterIntroMs;
-const heroDeriveRevealDelayMs =
-  heroFirstRowRevealDelayMs + rowRevealDurationMs + heroInterRowRevealDelayMs;
-const heroBuildRevealDelayMs =
-  heroDeriveRevealDelayMs + rowRevealDurationMs + heroInterRowRevealDelayMs;
+const heroRobotsRevealDelayMs =
+  heroFirstRowRevealDelayMs + heroRowRevealCadenceMs;
+const heroProjectsRevealDelayMs =
+  heroRobotsRevealDelayMs + heroRowRevealCadenceMs;
 const heroContactsRevealDelayMs =
-  heroBuildRevealDelayMs + rowRevealDurationMs + heroInterRowRevealDelayMs;
+  heroProjectsRevealDelayMs + heroRowRevealCadenceMs;
 
 function joinClassNames(...classNames: Array<string | undefined>): string {
   return classNames.filter(Boolean).join(" ");
@@ -210,14 +214,14 @@ export function HeroSlide({
     return {
       id: "hero-simple-slide",
       className: "h-full",
-      topSpacerClassName: "w-full shrink-0 h-[15%]",
+      topSpacerClassName: "w-full shrink-0 h-[11.5%]",
       rowsClassName: "items-center gap-2",
       rows: [
         {
           id: "hero-name",
           kind: "text",
           className:
-            "relative h-[var(--slide-name-cycle-wrap-height)] w-full min-w-0 max-w-full overflow-hidden px-3 text-center [contain:layout_paint_style] [overflow-anchor:none] [&>div]:absolute [&>div]:inset-0 [&>div]:flex [&>div]:items-center [&>div]:justify-center",
+            "relative h-[var(--slide-name-cycle-wrap-height)] w-full min-w-0 max-w-full overflow-visible px-3 pb-2 text-center [contain:layout_style] [overflow-anchor:none] [&>div]:absolute [&>div]:inset-0 [&>div]:flex [&>div]:items-center [&>div]:justify-center",
           reveal: {
             delayMs: heroFirstRowRevealDelayMs,
           },
@@ -235,45 +239,61 @@ export function HeroSlide({
           ],
         },
         {
-          id: "hero-derive",
+          id: "hero-robots",
           kind: "text",
           className: "px-3 text-center !text-lg md:!text-2xl",
           reveal: {
-            delayMs: heroDeriveRevealDelayMs,
+            delayMs: heroRobotsRevealDelayMs,
           },
           groups: [
             {
-              id: "hero-derive-prefix",
-              text: "cofounded ",
+              id: "hero-robots-prefix",
+              text: "interested in ",
             },
             {
-              id: "hero-derive-link",
-              text: "derive.xyz",
-              href: "https://www.derive.xyz",
-              target: "_blank",
-              rel: "noopener noreferrer",
+              id: "hero-robots-link",
+              text: "robots",
+              hoverText: "clankers",
+              href: "#robots",
               linkAppearance: "unstyled",
               showLinkIcon: false,
-              notation: keywordUnderline(UNDERLINE_ORANGE),
             },
           ],
         },
         {
-          id: "hero-build",
+          id: "hero-projects",
           kind: "text",
           className: "px-3 text-center !text-lg md:!text-2xl",
           reveal: {
-            delayMs: heroBuildRevealDelayMs,
+            delayMs: heroProjectsRevealDelayMs,
           },
           groups: [
             {
-              id: "hero-build-prefix",
-              text: "interested in ",
+              id: "hero-cadskills-link",
+              text: "cadskills.xyz",
+              className: "mr-4 md:mr-5",
+              href: "https://cadskills.xyz",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              linkAppearance: "unstyled",
+              showLinkIcon: true,
+              notation: keywordUnderline(UNDERLINE_BLUE),
             },
             {
-              id: "hero-build-link",
-              text: "robots",
-              href: "#robots",
+              id: "hero-step-parts-link",
+              text: "step.parts",
+              className: "mr-4 md:mr-5",
+              href: "https://step.parts",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              linkAppearance: "unstyled",
+              showLinkIcon: true,
+              notation: keywordUnderline(UNDERLINE_GREEN),
+            },
+            {
+              id: "hero-more-link",
+              text: "more",
+              href: "/projects",
               linkAppearance: "unstyled",
               showLinkIcon: false,
               notation: keywordUnderline(buildUnderlineColor),

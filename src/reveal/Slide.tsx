@@ -38,6 +38,7 @@ export type SimpleNotationConfig = {
 export type SimpleTextGroupConfig = {
   id: string;
   text: string;
+  hoverText?: string;
   className?: string;
   style?: CSSProperties;
   href?: string;
@@ -220,6 +221,9 @@ const TextGroup = memo(function TextGroup({
   const showLinkIcon = group.showLinkIcon ?? true;
   const sharedTextRowLinkInteractionClassName =
     "cursor-pointer hover:opacity-65 focus-visible:opacity-65";
+  const textRowLinkInteractionClassName = group.hoverText
+    ? "cursor-pointer"
+    : sharedTextRowLinkInteractionClassName;
   const sharedTextRowLinkMotionClassName =
     "duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)]";
   const sharedTextRowLinkIconClassName =
@@ -227,21 +231,38 @@ const TextGroup = memo(function TextGroup({
   const rawTextRowLinkClassName = joinClassNames(
     "inline-flex items-baseline align-baseline transition-opacity",
     sharedTextRowLinkMotionClassName,
-    sharedTextRowLinkInteractionClassName,
+    textRowLinkInteractionClassName,
+    group.hoverText ? "text-swap-trigger" : undefined,
   );
   const linkClassName = isUnstyledLink
     ? joinClassNames(
         "inline-flex items-baseline align-baseline text-inherit no-underline transition-opacity hover:text-inherit focus-visible:text-inherit",
         sharedTextRowLinkMotionClassName,
-        sharedTextRowLinkInteractionClassName,
+        textRowLinkInteractionClassName,
+        group.hoverText ? "text-swap-trigger" : undefined,
       )
     : joinClassNames(
         "inline-flex items-baseline align-baseline text-[var(--color-blue-500)] no-underline transition-[color,opacity] hover:text-[var(--color-blue-400)] focus-visible:text-[var(--color-blue-400)]",
         sharedTextRowLinkMotionClassName,
-        sharedTextRowLinkInteractionClassName,
+        textRowLinkInteractionClassName,
+        group.hoverText ? "text-swap-trigger" : undefined,
       );
+  const textLabel = group.hoverText ? (
+    <span className="text-swap-label">
+      <span className="text-swap-default">{group.text}</span>
+      <span className="text-swap-hover" aria-hidden="true">
+        {group.hoverText}
+      </span>
+    </span>
+  ) : (
+    <span className="inline">{group.text}</span>
+  );
   const textContent = !group.href
-    ? group.text
+    ? group.hoverText
+      ? (
+          <span className="text-swap-trigger">{textLabel}</span>
+        )
+      : group.text
     : isRawLink
       ? (
           <a
@@ -253,7 +274,7 @@ const TextGroup = memo(function TextGroup({
             {showLinkIcon ? (
               <Link className={sharedTextRowLinkIconClassName} aria-hidden="true" />
             ) : null}
-            <span className="inline">{group.text}</span>
+            {textLabel}
           </a>
         )
       : (
@@ -266,7 +287,7 @@ const TextGroup = memo(function TextGroup({
             {showLinkIcon ? (
               <Link className={sharedTextRowLinkIconClassName} aria-hidden="true" />
             ) : null}
-            <span className="inline">{group.text}</span>
+            {textLabel}
           </a>
         );
 

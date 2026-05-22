@@ -34,6 +34,7 @@ import {
   REQUEST_SKIP_REVEAL_EVENT,
   type RequestSkipRevealDetail,
 } from "../reveal/skipRevealEvents";
+import { scaleRevealCadenceMs } from "../reveal/timing";
 import type {
   NotationBracketSide,
   NotationLayerConfig,
@@ -44,24 +45,22 @@ const contentSlideTopInsetPct = 20;
 const whiteboardPresetLayoutAspectRatio = 16 / 10;
 const rowRevealDurationMs = 520;
 
-// Reading-speed-based timing constants
-// ~333 WPM — comfortable pace for short animated text on screen
-const msPerWord = 180;
-// Minimum reading time for very short rows (e.g. 1-2 words)
-const minRowReadMs = 1000;
-// Brief glance at year label before reading the first content row
-const yearGlanceMs = 300;
+// Reading-speed-based cadence constants. Keep reveal animation durations fixed;
+// only shorten the waits between visible moments.
+const msPerWord = scaleRevealCadenceMs(180);
+const minRowReadMs = scaleRevealCadenceMs(1000);
+const yearGlanceMs = scaleRevealCadenceMs(300);
 // Reader starts reading ~150ms into the 520ms fade-in (text becomes legible before full opacity).
 // This 370ms "head start" is used for cross-out timing so it lands near the read position.
 const readHeadStartMs = 370;
 // Non-cross-out notations reveal after a fixed pause once the row is fully visible.
-const notationDelayAfterRowRevealMs = 500;
+const notationDelayAfterRowRevealMs = scaleRevealCadenceMs(500);
 // Extra delay for cross-outs so they feel deliberate (fires after a brief pause)
-const crossOutExtraDelayMs = 800;
+const crossOutExtraDelayMs = scaleRevealCadenceMs(800);
 // If a row has a delayed cross-out, the next row waits this long after the animation completes
-const postCrossOutPauseMs = 300;
+const postCrossOutPauseMs = scaleRevealCadenceMs(300);
 // Safety cap so no single row-to-row reveal gap feels too long.
-const maxRowRevealGapMs = 2000;
+const maxRowRevealGapMs = scaleRevealCadenceMs(2000);
 // Default rough-notation animation duration (matches SHARED_UNDERLINE_LAYERS)
 const defaultAnnotationAnimationMs = 480;
 const defaultContentRowClassName = "px-3 text-center text-lg md:text-2xl";

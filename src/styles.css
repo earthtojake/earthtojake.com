@@ -8,7 +8,7 @@
   --hero-marker-width: 5rem;
   --hero-marker-gap: 0.08rem;
   --hero-tray-padding-inline: 0.64rem;
-  --slide-name-cycle-wrap-height: clamp(4.1rem, 13vw, 9.4rem);
+  --slide-name-cycle-wrap-height: clamp(4.8rem, 14vw, 10.8rem);
 }
 
 html,
@@ -36,6 +36,53 @@ body {
   text-transform: lowercase;
 }
 
+.text-swap-label {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.text-swap-label::after {
+  content: "";
+  position: absolute;
+  left: -0.08em;
+  right: -0.08em;
+  top: 52%;
+  height: 0.09em;
+  border-radius: 999px;
+  background: var(--color-red-500);
+  transform: scaleX(0) rotate(-2deg);
+  transform-origin: left center;
+  transition: transform 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.text-swap-hover {
+  position: absolute;
+  left: calc(100% - 1.8em);
+  top: -1.42em;
+  width: max-content;
+  color: var(--color-slate-500);
+  font-size: 0.68em;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-0.08em, 0.16em) rotate(20deg) scale(0.94);
+  transform-origin: left bottom;
+  transition:
+    opacity 160ms ease 130ms,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1) 130ms;
+}
+
+.text-swap-trigger:hover .text-swap-label::after,
+.text-swap-trigger:focus-visible .text-swap-label::after {
+  transform: scaleX(1) rotate(-2deg);
+}
+
+.text-swap-trigger:hover .text-swap-hover,
+.text-swap-trigger:focus-visible .text-swap-hover {
+  opacity: 1;
+  transform: translate(0, 0) rotate(20deg) scale(1);
+}
+
 .whiteboard {
   position: relative;
   width: 100%;
@@ -52,7 +99,7 @@ body {
     --hero-marker-width: 5.4rem;
     --hero-marker-gap: 0.24rem;
     --hero-tray-padding-inline: 0.38rem;
-    --slide-name-cycle-wrap-height: clamp(4.5rem, 27vw, 7.5rem);
+    --slide-name-cycle-wrap-height: clamp(5rem, 28vw, 8.4rem);
   }
 }
 
