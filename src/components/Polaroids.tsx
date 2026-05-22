@@ -136,6 +136,24 @@ function resolveMasonryColumns(photoCount: number, containerWidth: number): numb
   return Math.min(photoCount, 3);
 }
 
+function resolveDesktopAlbumSpacing(containerWidth: number): number {
+  return containerWidth < 700 ? 8 : 12;
+}
+
+function clampColumnsToMeasuredWidth(
+  columns: number,
+  containerWidth: number,
+): number {
+  const spacing = resolveDesktopAlbumSpacing(containerWidth);
+  let safeColumns = Math.max(1, columns);
+
+  while (safeColumns > 1 && containerWidth <= spacing * (safeColumns - 1)) {
+    safeColumns -= 1;
+  }
+
+  return safeColumns;
+}
+
 function buildLightboxItem(photo: PolaroidPhoto): SlideData {
   const { width, height } = resolveLightboxDimensions(photo);
   const videoSources = resolveVideoSources(photo);
@@ -526,16 +544,18 @@ export function Polaroids({
 
   const masonryColumns = useCallback(
     (containerWidth: number) => {
-      if (resolvedDesktopColumns !== null) {
-        return Math.min(Math.max(photos.length, 1), resolvedDesktopColumns);
-      }
+      const photoCount = Math.max(masonryPhotos.length, 1);
+      const requestedColumns =
+        resolvedDesktopColumns !== null
+          ? Math.min(photoCount, resolvedDesktopColumns)
+          : resolveMasonryColumns(photoCount, containerWidth);
 
-      return resolveMasonryColumns(photos.length, containerWidth);
+      return clampColumnsToMeasuredWidth(requestedColumns, containerWidth);
     },
-    [photos.length, resolvedDesktopColumns],
+    [masonryPhotos.length, resolvedDesktopColumns],
   );
   const desktopAlbumSpacing = useCallback(
-    (containerWidth: number) => (containerWidth < 700 ? 8 : 12),
+    (containerWidth: number) => resolveDesktopAlbumSpacing(containerWidth),
     [],
   );
   const desktopAlbumPadding = 0;
