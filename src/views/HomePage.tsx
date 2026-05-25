@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import arrowSingleDownDrawingPreset from "../components/drawings/arrow-down.json";
 import heroEarthToDrawingPreset from "../components/drawings/earth-to.json";
@@ -505,6 +506,23 @@ export function HomePage() {
               </Whiteboard>
             </ResponsiveViewportContainer>
             <BouncingFunFacts skipRevealDelay={heroSkipRevealDelay} />
+            <nav
+              className="absolute right-3 top-3 z-[2] flex items-center gap-3 px-4 py-2 text-xs text-slate-500 md:right-5 md:top-5 md:gap-6"
+              aria-label="site navigation"
+            >
+              <Link
+                href="/photos"
+                className="no-underline transition-colors hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-2"
+              >
+                photos
+              </Link>
+              <Link
+                href="/projects"
+                className="no-underline transition-colors hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-2"
+              >
+                projects
+              </Link>
+            </nav>
           </div>
         </ViewportContainer>
 

@@ -47,6 +47,7 @@ type PolaroidsProps = {
   photos: PolaroidPhoto[];
   desktopLayout?: "columns" | "rows";
   desktopColumns?: number;
+  fitToContainer?: boolean;
   interactive?: boolean;
 };
 
@@ -263,6 +264,7 @@ export function Polaroids({
   photos,
   desktopLayout,
   desktopColumns,
+  fitToContainer = true,
   interactive = true,
 }: PolaroidsProps) {
   const resolvedDesktopLayout = desktopLayout === "rows" ? "rows" : "columns";
@@ -565,6 +567,11 @@ export function Polaroids({
       return;
     }
 
+    if (!fitToContainer) {
+      setMasonryScale(1);
+      return;
+    }
+
     const stageElement = masonryStageRef.current;
     const contentElement = masonryContentRef.current;
     if (!stageElement || !contentElement) {
@@ -617,16 +624,26 @@ export function Polaroids({
         window.cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [photos.length, masonryColumns, resolvedDesktopLayout]);
+  }, [fitToContainer, photos.length, masonryColumns, resolvedDesktopLayout]);
+
+  const stageClassName = fitToContainer
+    ? "relative mx-auto box-border h-full max-h-full min-h-0 w-[min(940px,100%)] overflow-hidden px-[clamp(0.65rem,2vw,1.35rem)] pb-[clamp(1.35rem,3.8vh,2.6rem)]"
+    : "relative mx-auto box-border w-full max-w-[1440px] px-[clamp(0.75rem,2.5vw,1.75rem)] pb-[clamp(2rem,5vw,4rem)]";
+  const contentClassName = fitToContainer
+    ? "w-full origin-top transition-transform duration-[140ms] ease-out"
+    : "w-full";
+  const contentStyle = fitToContainer
+    ? ({ transform: `scale(${masonryScale})` } satisfies CSSProperties)
+    : undefined;
 
   return (
     <div
       ref={masonryStageRef}
-      className="relative mx-auto box-border h-full max-h-full min-h-0 w-[min(940px,100%)] overflow-hidden px-[clamp(0.65rem,2vw,1.35rem)] pb-[clamp(1.35rem,3.8vh,2.6rem)]"
+      className={stageClassName}
     >
       <div
-        className="w-full origin-top transition-transform duration-[140ms] ease-out"
-        style={{ transform: `scale(${masonryScale})` }}
+        className={contentClassName}
+        style={contentStyle}
       >
         <div ref={masonryContentRef} className="w-full">
           {resolvedDesktopLayout === "rows" ? (
