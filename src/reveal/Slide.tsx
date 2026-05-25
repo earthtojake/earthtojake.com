@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { Polaroids, type PolaroidPhoto } from "../components/Polaroids";
+import { getLockedViewportHeight } from "../viewportLock";
 import { clamp } from "./math";
 import { SHARED_UNDERLINE_LAYERS } from "./notationPresets";
 import { RevealItem } from "./RevealItem";
@@ -92,14 +93,60 @@ export type SlideConfig = {
 export type SlideProps = {
   id?: string;
   revealed: boolean;
+  autoRevealOnScroll?: boolean;
   skipRevealDelay?: boolean;
   slide: SlideConfig;
   rowRevealDurationMs?: number;
   slideIndex?: number;
 };
 
+type RowStartOverridesById = Record<string, number>;
+
+const scrollAutoRevealViewportRatio = 0.5;
+
 function joinClassNames(...classNames: Array<string | undefined>): string {
   return classNames.filter(Boolean).join(" ");
+}
+
+function getRowRevealDelayMs(row: SimpleRowConfig): number {
+  return Number.isFinite(row.reveal?.delayMs)
+    ? Math.max(row.reveal?.delayMs ?? 0, 0)
+    : 0;
+}
+
+function resolveRowStartTimesById(
+  rows: SimpleRowConfig[],
+  rowStartOverridesById: RowStartOverridesById,
+): RowStartOverridesById {
+  const rowStartTimesById: RowStartOverridesById = {};
+  let previousBaseDelayMs = 0;
+  let previousResolvedStartMs = 0;
+
+  rows.forEach((row, rowIndex) => {
+    const baseDelayMs = getRowRevealDelayMs(row);
+    const gapFromPreviousRowMs =
+      rowIndex === 0
+        ? baseDelayMs
+        : Math.max(baseDelayMs - previousBaseDelayMs, 0);
+    let resolvedStartMs =
+      rowIndex === 0
+        ? baseDelayMs
+        : previousResolvedStartMs + gapFromPreviousRowMs;
+    const overrideStartMs = rowStartOverridesById[row.id];
+
+    if (Number.isFinite(overrideStartMs)) {
+      resolvedStartMs = Math.min(resolvedStartMs, Math.max(overrideStartMs, 0));
+      if (rowIndex > 0) {
+        resolvedStartMs = Math.max(resolvedStartMs, previousResolvedStartMs);
+      }
+    }
+
+    rowStartTimesById[row.id] = resolvedStartMs;
+    previousBaseDelayMs = baseDelayMs;
+    previousResolvedStartMs = resolvedStartMs;
+  });
+
+  return rowStartTimesById;
 }
 
 type TextGroupProps = {
@@ -332,6 +379,7 @@ const TextRow = memo(function TextRow({
 export function Slide({
   id,
   revealed,
+  autoRevealOnScroll = false,
   skipRevealDelay = false,
   slide,
   rowRevealDurationMs = 520,
@@ -342,17 +390,63 @@ export function Slide({
   );
   const [elapsedMs, setElapsedMs] = useState(0);
   const skipRevealActivatedElapsedMsRef = useRef<number | null>(null);
+  const rowElementsByIdRef = useRef<Record<string, HTMLDivElement | null>>({});
+  const rowElementCallbacksByIdRef = useRef<
+    Record<string, (element: HTMLDivElement | null) => void>
+  >({});
+  const rowStartOverridesByIdRef = useRef<RowStartOverridesById>({});
+  const [rowStartOverridesById, setRowStartOverridesById] =
+    useState<RowStartOverridesById>({});
+
+  const getRowElementCallback = useCallback((rowId: string) => {
+    const existingCallback = rowElementCallbacksByIdRef.current[rowId];
+    if (existingCallback) {
+      return existingCallback;
+    }
+
+    const callback = (element: HTMLDivElement | null) => {
+      if (element) {
+        rowElementsByIdRef.current[rowId] = element;
+        return;
+      }
+
+      delete rowElementsByIdRef.current[rowId];
+    };
+
+    rowElementCallbacksByIdRef.current[rowId] = callback;
+    return callback;
+  }, []);
 
   useEffect(() => {
     if (!revealed) {
       setSequenceStartTime(null);
       setElapsedMs(0);
+      rowStartOverridesByIdRef.current = {};
+      setRowStartOverridesById({});
       return;
     }
 
     setSequenceStartTime(performance.now());
     setElapsedMs(0);
+    rowStartOverridesByIdRef.current = {};
+    setRowStartOverridesById({});
   }, [revealed, slide.id]);
+
+  useEffect(() => {
+    const activeRowIds = new Set(slide.rows.map((row) => row.id));
+
+    for (const rowId of Object.keys(rowElementsByIdRef.current)) {
+      if (!activeRowIds.has(rowId)) {
+        delete rowElementsByIdRef.current[rowId];
+      }
+    }
+
+    for (const rowId of Object.keys(rowElementCallbacksByIdRef.current)) {
+      if (!activeRowIds.has(rowId)) {
+        delete rowElementCallbacksByIdRef.current[rowId];
+      }
+    }
+  }, [slide.rows]);
 
   useEffect(() => {
     if (sequenceStartTime === null) {
@@ -374,6 +468,81 @@ export function Slide({
       }
     };
   }, [sequenceStartTime]);
+
+  useEffect(() => {
+    if (!autoRevealOnScroll || !revealed || sequenceStartTime === null) {
+      return;
+    }
+
+    let frame = 0;
+
+    const evaluateScrollReveal = (timestamp: number) => {
+      frame = 0;
+      const triggerLine = getLockedViewportHeight() * scrollAutoRevealViewportRatio;
+      const currentElapsedMs = Math.max(timestamp - sequenceStartTime, 0);
+      const currentOverrides = rowStartOverridesByIdRef.current;
+      const rowStartTimesById = resolveRowStartTimesById(
+        slide.rows,
+        currentOverrides,
+      );
+      let nextOverrides: RowStartOverridesById | null = null;
+
+      for (const row of slide.rows) {
+        if (Number.isFinite(currentOverrides[row.id])) {
+          continue;
+        }
+
+        const rowStartTimeMs =
+          rowStartTimesById[row.id] ?? getRowRevealDelayMs(row);
+        if (currentElapsedMs >= rowStartTimeMs) {
+          continue;
+        }
+
+        const rowElement = rowElementsByIdRef.current[row.id];
+        if (!rowElement) {
+          continue;
+        }
+
+        if (rowElement.getBoundingClientRect().top > triggerLine) {
+          continue;
+        }
+
+        if (nextOverrides === null) {
+          nextOverrides = { ...currentOverrides };
+        }
+        nextOverrides[row.id] = currentElapsedMs;
+      }
+
+      if (nextOverrides !== null) {
+        rowStartOverridesByIdRef.current = nextOverrides;
+        setRowStartOverridesById(nextOverrides);
+      }
+    };
+
+    const scheduleScrollReveal = () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      frame = window.requestAnimationFrame(evaluateScrollReveal);
+    };
+
+    scheduleScrollReveal();
+    window.addEventListener("scroll", scheduleScrollReveal, { passive: true });
+    window.addEventListener("resize", scheduleScrollReveal);
+    window.addEventListener("orientationchange", scheduleScrollReveal);
+
+    return () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      window.removeEventListener("scroll", scheduleScrollReveal);
+      window.removeEventListener("resize", scheduleScrollReveal);
+      window.removeEventListener("orientationchange", scheduleScrollReveal);
+    };
+  }, [autoRevealOnScroll, revealed, sequenceStartTime, slide.rows]);
+
   if (!revealed || !skipRevealDelay) {
     if (skipRevealActivatedElapsedMsRef.current !== null) {
       skipRevealActivatedElapsedMsRef.current = null;
@@ -382,6 +551,9 @@ export function Slide({
     skipRevealActivatedElapsedMsRef.current = elapsedMs;
   }
   const skipRevealActivatedElapsedMs = skipRevealActivatedElapsedMsRef.current;
+  const scrollAdjustedRowStartTimesById = autoRevealOnScroll
+    ? resolveRowStartTimesById(slide.rows, rowStartOverridesById)
+    : null;
 
   const slideClassName = joinClassNames(
     "flex h-full w-full flex-col",
@@ -400,15 +572,17 @@ export function Slide({
         ) : null}
         <div className={rowsClassName}>
           {slide.rows.map((row) => {
-            const rowDelayMs = Math.max(row.reveal?.delayMs ?? 0, 0);
-            let resolvedRowDelayMs = rowDelayMs;
+            const rowDelayMs = getRowRevealDelayMs(row);
+            let resolvedRowDelayMs =
+              scrollAdjustedRowStartTimesById?.[row.id] ?? rowDelayMs;
             if (skipRevealDelay) {
               const activationElapsed =
                 skipRevealActivatedElapsedMs ?? elapsedMs;
-              const rowStartedBeforeSkip = activationElapsed >= rowDelayMs;
-              resolvedRowDelayMs = rowStartedBeforeSkip
-                ? rowDelayMs
-                : activationElapsed;
+              const rowStartedBeforeSkip =
+                activationElapsed >= resolvedRowDelayMs;
+              if (!rowStartedBeforeSkip) {
+                resolvedRowDelayMs = activationElapsed;
+              }
             }
             const rowProgress = revealed
               ? clamp(
@@ -442,6 +616,7 @@ export function Slide({
                   className: row.className,
                   style: row.style,
                 }}
+                onWrapperElement={getRowElementCallback(row.id)}
               >
                 {row.kind === "text" ? (
                   <TextRow

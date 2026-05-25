@@ -91,7 +91,6 @@ type ContentSlidesProps = {
 type ContentSlideEntry = {
   id: string;
   anchorId: string;
-  nextAnchorId?: string;
   whiteboardPresets: WhiteboardPresetConfig[];
   slide: SlideConfig;
 };
@@ -1024,12 +1023,6 @@ const contentSlides: ContentSlideEntry[] = legacySlides.map(
     const anchorId =
       contentSlideAnchorIds[contentSlideIndex] ??
       `slide-${contentSlideIndex + 2}`;
-    const nextContentSlideIndex = contentSlideIndex + 1;
-    const nextAnchorId =
-      nextContentSlideIndex < legacySlides.length
-        ? (contentSlideAnchorIds[nextContentSlideIndex] ??
-          `slide-${nextContentSlideIndex + 2}`)
-        : undefined;
     const titlePreset = contentSlideWhiteboardPresetsByIndex[contentSlideIndex];
     const titleDrawingIntroDurationMs = titlePreset
       ? estimateWhiteboardPresetIntroDurationMs(titlePreset)
@@ -1038,7 +1031,6 @@ const contentSlides: ContentSlideEntry[] = legacySlides.map(
     return {
       id: legacySlide.id,
       anchorId,
-      nextAnchorId,
       whiteboardPresets: titlePreset ? [titlePreset] : [],
       slide: convertLegacySlideToSlide(
         legacySlide,
@@ -1198,61 +1190,6 @@ function ContentSlideViewport({
     };
   }, [entry.anchorId, isRevealInProgress, skipRevealDelay]);
 
-  useEffect(() => {
-    if (skipRevealDelay) {
-      return;
-    }
-
-    if (!revealed) {
-      return;
-    }
-
-    if (typeof IntersectionObserver === "undefined") {
-      return;
-    }
-
-    const nextAnchorId = entry.nextAnchorId;
-    if (!nextAnchorId) {
-      return;
-    }
-
-    let frame = 0;
-    let observer: IntersectionObserver | null = null;
-
-    const observeNextSlide = () => {
-      const nextSlide = document.getElementById(nextAnchorId);
-      if (!nextSlide) {
-        frame = window.requestAnimationFrame(observeNextSlide);
-        return;
-      }
-
-      observer = new IntersectionObserver(
-        ([nextEntry]) => {
-          if (!nextEntry?.isIntersecting || nextEntry.intersectionRatio < 0.3) {
-            return;
-          }
-
-          setSkipRevealDelay(true);
-          observer?.disconnect();
-        },
-        {
-          threshold: [0, 0.3, 1],
-        },
-      );
-
-      observer.observe(nextSlide);
-    };
-
-    observeNextSlide();
-
-    return () => {
-      if (frame) {
-        window.cancelAnimationFrame(frame);
-      }
-      observer?.disconnect();
-    };
-  }, [entry.nextAnchorId, revealed, skipRevealDelay]);
-
   return (
     <ViewportContainer stackOrder={stackOrder} className="border-t border-slate-300">
       <div ref={targetRef} className="relative h-full w-full">
@@ -1275,6 +1212,7 @@ function ContentSlideViewport({
               <Slide
                 id={entry.anchorId}
                 revealed={revealed}
+                autoRevealOnScroll={true}
                 skipRevealDelay={skipRevealDelay}
                 slide={entry.slide}
                 rowRevealDurationMs={rowRevealDurationMs}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { PropsWithChildren } from "react";
 import { applyEasing } from "./easing";
 import { clamp, lerp } from "./math";
@@ -38,6 +38,7 @@ function resolveRange(
 type RevealItemProps = PropsWithChildren<{
   progress: number;
   config: RevealItemConfig;
+  onWrapperElement?: (element: HTMLDivElement | null) => void;
   onRevealed?: () => void;
 }>;
 
@@ -45,6 +46,7 @@ export function RevealItem({
   progress,
   config,
   children,
+  onWrapperElement,
   onRevealed,
 }: RevealItemProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -60,6 +62,13 @@ export function RevealItem({
   const previousTopRef = useRef<number | null>(null);
   const previousShouldRevealRef = useRef(false);
   const revealedRef = useRef(false);
+  const setWrapperElement = useCallback(
+    (element: HTMLDivElement | null) => {
+      wrapperRef.current = element;
+      onWrapperElement?.(element);
+    },
+    [onWrapperElement],
+  );
 
   useEffect(() => {
     if (!usesViewportReveal) {
@@ -280,7 +289,11 @@ export function RevealItem({
   };
 
   return (
-    <div className={config.className ?? ""} ref={wrapperRef} style={wrapperStyle}>
+    <div
+      className={config.className ?? ""}
+      ref={setWrapperElement}
+      style={wrapperStyle}
+    >
       <div style={animatedStyle}>{children}</div>
     </div>
   );
