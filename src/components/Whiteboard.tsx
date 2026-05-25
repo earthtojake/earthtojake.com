@@ -729,6 +729,7 @@ type WhiteboardProps = {
   className?: string;
   contentClassName?: string;
   children?: ReactNode;
+  instantReveal?: boolean;
   skipRevealDelay?: boolean;
   selectedMarkerColor?: string | null;
   selectedToolId?: string | null;
@@ -739,6 +740,7 @@ export function Whiteboard({
   className,
   contentClassName,
   children,
+  instantReveal = false,
   skipRevealDelay = false,
   selectedMarkerColor,
   selectedToolId,
@@ -766,6 +768,7 @@ export function Whiteboard({
   const activePointerIdRef = useRef<number | null>(null);
   const hasTrackedDrawRef = useRef(false);
   const hasPlayedPresetIntroRef = useRef<Record<string, boolean>>({});
+  const instantRevealRef = useRef(instantReveal);
   const skipRevealDelayRef = useRef(skipRevealDelay);
   const visiblePresetPointsByIdRef = useRef<Record<string, number>>({});
   const presetDelayOverridesRef = useRef<Record<string, number>>({});
@@ -795,6 +798,10 @@ export function Whiteboard({
 
     return unique;
   }, [presets]);
+
+  useEffect(() => {
+    instantRevealRef.current = instantReveal;
+  }, [instantReveal]);
 
   useEffect(() => {
     skipRevealDelayRef.current = skipRevealDelay;
@@ -1098,10 +1105,14 @@ export function Whiteboard({
       }
 
       const shouldSkipAnimation =
+        instantRevealRef.current ||
         layout.timing.playOnce && hasPlayedPresetIntroRef.current[layout.id];
 
       if (shouldSkipAnimation) {
         initialVisiblePointsById[layout.id] = layout.totalPoints;
+        if (layout.timing.playOnce) {
+          hasPlayedPresetIntroRef.current[layout.id] = true;
+        }
         continue;
       }
 
@@ -1204,7 +1215,7 @@ export function Whiteboard({
     return () => {
       window.cancelAnimationFrame(animationFrame);
     };
-  }, [preparedPresetLayouts]);
+  }, [instantReveal, preparedPresetLayouts]);
 
   const startStroke = useCallback(
     (point: DrawPoint) => {

@@ -373,16 +373,46 @@ const heroRevealSequenceDurationMs = Math.max(
   ),
 );
 const heroSlideAnchorId = "hero";
+const homeRevealPlayedStorageKey = "earthtojake.homeRevealPlayed";
+
+function getInitialShouldSkipHomeReveal(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.sessionStorage.getItem(homeRevealPlayedStorageKey) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function markHomeRevealPlayed(): void {
+  try {
+    window.sessionStorage.setItem(homeRevealPlayedStorageKey, "true");
+  } catch {
+    // Storage can be unavailable in private browsing or strict privacy modes.
+  }
+}
 
 export function HomePage() {
+  const [skipHomeRevealOnMount] = useState(getInitialShouldSkipHomeReveal);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(
     getInitialSelectedMarkerId,
   );
-  const [heroSkipRevealDelay, setHeroSkipRevealDelay] = useState(false);
-  const [heroRevealInProgress, setHeroRevealInProgress] = useState(true);
+  const [heroSkipRevealDelay, setHeroSkipRevealDelay] = useState(
+    skipHomeRevealOnMount,
+  );
+  const [heroRevealInProgress, setHeroRevealInProgress] = useState(
+    !skipHomeRevealOnMount,
+  );
   const selectedMarkerColor =
     WHITEBOARD_MARKER_OPTIONS.find((marker) => marker.id === selectedMarkerId)
       ?.color ?? null;
+
+  useEffect(() => {
+    markHomeRevealPlayed();
+  }, []);
 
   useEffect(() => {
     if (heroSkipRevealDelay || heroRevealSequenceDurationMs <= 0) {
@@ -484,6 +514,7 @@ export function HomePage() {
             <ResponsiveViewportContainer>
               <Whiteboard
                 className="h-full min-h-full w-full"
+                instantReveal={skipHomeRevealOnMount}
                 presets={heroWhiteboardAllPresets}
                 skipRevealDelay={heroSkipRevealDelay}
                 selectedMarkerColor={selectedMarkerColor}
@@ -499,6 +530,7 @@ export function HomePage() {
                 >
                   <HeroSlide
                     id={heroSlideAnchorId}
+                    instantReveal={skipHomeRevealOnMount}
                     revealed={true}
                     skipRevealDelay={heroSkipRevealDelay}
                   />
@@ -527,6 +559,7 @@ export function HomePage() {
         </ViewportContainer>
 
         <ContentSlides
+          skipRevealOnMount={skipHomeRevealOnMount}
           selectedMarkerColor={selectedMarkerColor}
           selectedToolId={selectedMarkerId}
         />

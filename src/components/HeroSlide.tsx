@@ -94,12 +94,14 @@ function keywordUnderline(color: string): SimpleNotationConfig {
 
 type HeroSlideProps = {
   id?: string;
+  instantReveal?: boolean;
   revealed: boolean;
   skipRevealDelay?: boolean;
 };
 
 export function HeroSlide({
   id,
+  instantReveal = false,
   revealed,
   skipRevealDelay = false,
 }: HeroSlideProps) {
@@ -323,6 +325,7 @@ export function HeroSlide({
   return (
     <Slide
       id={id}
+      instantReveal={instantReveal}
       revealed={revealed}
       skipRevealDelay={skipRevealDelay}
       slide={slide}

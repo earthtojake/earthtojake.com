@@ -94,6 +94,7 @@ export type SlideProps = {
   id?: string;
   revealed: boolean;
   autoRevealOnScroll?: boolean;
+  instantReveal?: boolean;
   skipRevealDelay?: boolean;
   slide: SlideConfig;
   rowRevealDurationMs?: number;
@@ -149,8 +150,22 @@ function resolveRowStartTimesById(
   return rowStartTimesById;
 }
 
+function estimateRowsCompleteElapsedMs(
+  rows: SimpleRowConfig[],
+  rowRevealDurationMs: number,
+): number {
+  const rowStartTimesById = resolveRowStartTimesById(rows, {});
+  const lastRowStartMs = Object.values(rowStartTimesById).reduce(
+    (maxStartMs, rowStartMs) => Math.max(maxStartMs, rowStartMs),
+    0,
+  );
+
+  return lastRowStartMs + Math.max(rowRevealDurationMs, 1);
+}
+
 type TextGroupProps = {
   group: SimpleTextGroupConfig;
+  instantReveal: boolean;
   rowRevealStarted: boolean;
   rowRevealed: boolean;
 };
@@ -163,6 +178,7 @@ function isCrossOutNotationType(
 
 const TextGroup = memo(function TextGroup({
   group,
+  instantReveal,
   rowRevealStarted,
   rowRevealed,
 }: TextGroupProps) {
@@ -175,6 +191,7 @@ const TextGroup = memo(function TextGroup({
       ? rowRevealStarted
       : rowRevealed
     : false;
+  const shouldShowNotationImmediately = instantReveal && notationTriggerReady;
 
   const clearAnnotations = useCallback(() => {
     annotationRefs.current.forEach((annotation) => {
@@ -184,9 +201,9 @@ const TextGroup = memo(function TextGroup({
   }, []);
 
   useEffect(() => {
-    setShowNotation(false);
+    setShowNotation(shouldShowNotationImmediately);
     clearAnnotations();
-  }, [clearAnnotations, notation, group.text]);
+  }, [clearAnnotations, notation, group.text, shouldShowNotationImmediately]);
 
   useEffect(() => {
     return () => {
@@ -202,7 +219,7 @@ const TextGroup = memo(function TextGroup({
   }, [clearAnnotations, notationTriggerReady]);
 
   useEffect(() => {
-    if (!notation || !notationTriggerReady) {
+    if (!notation || !notationTriggerReady || instantReveal) {
       return;
     }
 
@@ -216,7 +233,7 @@ const TextGroup = memo(function TextGroup({
     return () => {
       window.clearTimeout(timerId);
     };
-  }, [notation, notationTriggerReady]);
+  }, [instantReveal, notation, notationTriggerReady]);
 
   useEffect(() => {
     if (!notation || !showNotation) {
@@ -244,6 +261,12 @@ const TextGroup = memo(function TextGroup({
         multiline: resolvedMultiline,
         brackets: notation.brackets,
         ...layer,
+        ...(instantReveal
+          ? {
+              animate: false,
+              animationDuration: 0,
+            }
+          : null),
       }),
     );
 
@@ -257,7 +280,7 @@ const TextGroup = memo(function TextGroup({
     return () => {
       clearAnnotations();
     };
-  }, [clearAnnotations, notation, showNotation]);
+  }, [clearAnnotations, instantReveal, notation, showNotation]);
 
   const textClassName = group.className;
   const resolvedRel =
@@ -350,12 +373,14 @@ const TextGroup = memo(function TextGroup({
 });
 
 type TextRowProps = {
+  instantReveal: boolean;
   row: SimpleTextRowConfig;
   rowRevealStarted: boolean;
   rowRevealed: boolean;
 };
 
 const TextRow = memo(function TextRow({
+  instantReveal,
   row,
   rowRevealStarted,
   rowRevealed,
@@ -367,6 +392,7 @@ const TextRow = memo(function TextRow({
           <TextGroup
             key={group.id}
             group={group}
+            instantReveal={instantReveal}
             rowRevealStarted={rowRevealStarted}
             rowRevealed={rowRevealed}
           />
@@ -380,6 +406,7 @@ export function Slide({
   id,
   revealed,
   autoRevealOnScroll = false,
+  instantReveal = false,
   skipRevealDelay = false,
   slide,
   rowRevealDurationMs = 520,
@@ -397,6 +424,12 @@ export function Slide({
   const rowStartOverridesByIdRef = useRef<RowStartOverridesById>({});
   const [rowStartOverridesById, setRowStartOverridesById] =
     useState<RowStartOverridesById>({});
+  const instantRevealElapsedMs = estimateRowsCompleteElapsedMs(
+    slide.rows,
+    rowRevealDurationMs,
+  );
+  const displayedElapsedMs =
+    instantReveal && revealed ? instantRevealElapsedMs : elapsedMs;
 
   const getRowElementCallback = useCallback((rowId: string) => {
     const existingCallback = rowElementCallbacksByIdRef.current[rowId];
@@ -548,7 +581,7 @@ export function Slide({
       skipRevealActivatedElapsedMsRef.current = null;
     }
   } else if (skipRevealActivatedElapsedMsRef.current === null) {
-    skipRevealActivatedElapsedMsRef.current = elapsedMs;
+    skipRevealActivatedElapsedMsRef.current = displayedElapsedMs;
   }
   const skipRevealActivatedElapsedMs = skipRevealActivatedElapsedMsRef.current;
   const scrollAdjustedRowStartTimesById = autoRevealOnScroll
@@ -577,7 +610,7 @@ export function Slide({
               scrollAdjustedRowStartTimesById?.[row.id] ?? rowDelayMs;
             if (skipRevealDelay) {
               const activationElapsed =
-                skipRevealActivatedElapsedMs ?? elapsedMs;
+                skipRevealActivatedElapsedMs ?? displayedElapsedMs;
               const rowStartedBeforeSkip =
                 activationElapsed >= resolvedRowDelayMs;
               if (!rowStartedBeforeSkip) {
@@ -586,7 +619,8 @@ export function Slide({
             }
             const rowProgress = revealed
               ? clamp(
-                  (elapsedMs - resolvedRowDelayMs) / Math.max(rowRevealDurationMs, 1),
+                  (displayedElapsedMs - resolvedRowDelayMs) /
+                    Math.max(rowRevealDurationMs, 1),
                   0,
                   1,
                 )
@@ -620,6 +654,7 @@ export function Slide({
               >
                 {row.kind === "text" ? (
                   <TextRow
+                    instantReveal={instantReveal}
                     row={row}
                     rowRevealStarted={rowRevealStarted}
                     rowRevealed={rowRevealed}

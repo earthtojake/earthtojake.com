@@ -85,6 +85,7 @@ const deriveHomeUrl = "https://www.derive.xyz";
 const deriveStatsUrl = "https://www.derive.xyz/stats";
 
 type ContentSlidesProps = {
+  skipRevealOnMount?: boolean;
   selectedMarkerColor: string | null;
   selectedToolId: string | null;
 };
@@ -777,10 +778,16 @@ const contentSlides: ContentSlideEntry[] = legacySlides.map(
 function useRevealAtVisibilityThreshold(
   targetRef: RefObject<HTMLElement | null>,
   threshold: number,
+  revealImmediately = false,
 ): boolean {
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(revealImmediately);
 
   useEffect(() => {
+    if (revealImmediately) {
+      setRevealed(true);
+      return;
+    }
+
     if (revealed) {
       return;
     }
@@ -818,7 +825,7 @@ function useRevealAtVisibilityThreshold(
     return () => {
       observer.disconnect();
     };
-  }, [revealed, targetRef, threshold]);
+  }, [revealed, revealImmediately, targetRef, threshold]);
 
   return revealed;
 }
@@ -839,6 +846,7 @@ function estimateSlideRevealDurationMs(
 
 type ContentSlideViewportProps = {
   entry: ContentSlideEntry;
+  skipRevealOnMount: boolean;
   stackOrder: number;
   selectedMarkerColor: string | null;
   selectedToolId: string | null;
@@ -846,13 +854,18 @@ type ContentSlideViewportProps = {
 
 function ContentSlideViewport({
   entry,
+  skipRevealOnMount,
   stackOrder,
   selectedMarkerColor,
   selectedToolId,
 }: ContentSlideViewportProps) {
   const targetRef = useRef<HTMLDivElement | null>(null);
-  const revealed = useRevealAtVisibilityThreshold(targetRef, 0.3);
-  const [skipRevealDelay, setSkipRevealDelay] = useState(false);
+  const revealed = useRevealAtVisibilityThreshold(
+    targetRef,
+    0.3,
+    skipRevealOnMount,
+  );
+  const [skipRevealDelay, setSkipRevealDelay] = useState(skipRevealOnMount);
   const [isRevealInProgress, setIsRevealInProgress] = useState(false);
   const revealDurationMs = useMemo(() => {
     const slideRevealDurationMs = estimateSlideRevealDurationMs(
@@ -870,10 +883,10 @@ function ContentSlideViewport({
   const activePresets = revealed ? entry.whiteboardPresets : [];
 
   useEffect(() => {
-    if (revealed) {
+    if (revealed && !skipRevealOnMount) {
       track("slide_view", { slide: entry.anchorId });
     }
-  }, [revealed, entry.anchorId]);
+  }, [revealed, entry.anchorId, skipRevealOnMount]);
 
   useEffect(() => {
     if (!revealed || skipRevealDelay) {
@@ -929,6 +942,7 @@ function ContentSlideViewport({
         <ResponsiveViewportContainer>
           <Whiteboard
             className="h-full min-h-full w-full"
+            instantReveal={skipRevealOnMount}
             presets={activePresets}
             skipRevealDelay={skipRevealDelay}
             selectedMarkerColor={selectedMarkerColor}
@@ -944,6 +958,7 @@ function ContentSlideViewport({
             >
               <Slide
                 id={entry.anchorId}
+                instantReveal={skipRevealOnMount}
                 revealed={revealed}
                 autoRevealOnScroll={true}
                 skipRevealDelay={skipRevealDelay}
@@ -960,6 +975,7 @@ function ContentSlideViewport({
 }
 
 export function ContentSlides({
+  skipRevealOnMount = false,
   selectedMarkerColor,
   selectedToolId,
 }: ContentSlidesProps) {
@@ -969,6 +985,7 @@ export function ContentSlides({
         <ContentSlideViewport
           key={entry.id}
           entry={entry}
+          skipRevealOnMount={skipRevealOnMount}
           stackOrder={index + 1}
           selectedMarkerColor={selectedMarkerColor}
           selectedToolId={selectedToolId}
