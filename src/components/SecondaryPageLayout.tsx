@@ -11,7 +11,7 @@ type SecondaryPageLayoutProps = {
 };
 
 const defaultContentClassName =
-  "mx-auto w-full max-w-[1440px] px-[clamp(0.75rem,2.5vw,1.75rem)] pb-[clamp(2rem,5vw,4rem)]";
+  "mx-auto w-full max-w-[1440px] px-[var(--site-page-padding-inline)] pb-[clamp(2rem,5vw,4rem)]";
 
 export function SecondaryPageLayout({
   title,
@@ -27,7 +27,7 @@ export function SecondaryPageLayout({
 
   return (
     <main className="min-h-screen bg-white text-black">
-      <header className="mx-auto flex w-full max-w-[1440px] items-end justify-between gap-4 px-[clamp(0.75rem,2.5vw,1.75rem)] pb-5 pt-5 md:pb-8 md:pt-10">
+      <header className="mx-auto flex w-full max-w-[1440px] items-end justify-between gap-4 px-[var(--site-page-padding-inline)] pb-5 pt-5 md:pb-8 md:pt-10">
         <div>
           <Link
             href="/"

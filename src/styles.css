@@ -8,6 +8,7 @@
   --hero-marker-width: 5rem;
   --hero-marker-gap: 0.08rem;
   --hero-tray-padding-inline: 0.64rem;
+  --site-page-padding-inline: clamp(1.25rem, 2.5vw, 1.75rem);
   --slide-name-cycle-wrap-height: clamp(4.8rem, 14vw, 10.8rem);
 }
 

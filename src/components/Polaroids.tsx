@@ -628,7 +628,7 @@ export function Polaroids({
 
   const stageClassName = fitToContainer
     ? "relative mx-auto box-border h-full max-h-full min-h-0 w-[min(940px,100%)] overflow-hidden px-[clamp(0.65rem,2vw,1.35rem)] pb-[clamp(1.35rem,3.8vh,2.6rem)]"
-    : "relative mx-auto box-border w-full max-w-[1440px] px-[clamp(0.75rem,2.5vw,1.75rem)] pb-[clamp(2rem,5vw,4rem)]";
+    : "relative mx-auto box-border w-full max-w-[1440px] px-[var(--site-page-padding-inline)] pb-[clamp(2rem,5vw,4rem)]";
   const contentClassName = fitToContainer
     ? "w-full origin-top transition-transform duration-[140ms] ease-out"
     : "w-full";
