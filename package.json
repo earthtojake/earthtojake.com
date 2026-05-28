@@ -12,6 +12,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.7",
     "@tailwindcss/postcss": "^4.2.1",
     "@vercel/analytics": "^1.6.1",
     "lucide-react": "^0.575.0",
@@ -26,10 +27,14 @@
   "devDependencies": {
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "hersheytext": "^1.1.0",
+    "hersheytext": "^2.0.0",
     "husky": "^9.1.7",
     "knip": "^5.85.0",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "cheerio": "^1.2.0",
+    "postcss": "8.5.15"
   }
 }
