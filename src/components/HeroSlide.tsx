@@ -206,7 +206,13 @@ export function HeroSlide({
   }, [id]);
 
   const heroNameIsLoading = !areNameCycleFontsReady || isSpinnerPreviewMode;
-  const heroNameRowClassName = `${heroNameIsLoading ? "m-0 block whitespace-nowrap font-mono !text-6xl md:!text-7xl leading-[1.1] tracking-[0.04em]" : "block w-auto max-w-full whitespace-nowrap pb-[0.08em] text-center !text-7xl md:!text-9xl leading-[1.22] [font-family:Inter,system-ui,sans-serif]"}${
+  const heroNameWrapperClassName = joinClassNames(
+    "relative h-[var(--slide-name-cycle-wrap-height)] w-full min-w-0 max-w-full overflow-visible px-3 pb-2 text-center [contain:layout_style] [overflow-anchor:none] [&>div]:absolute [&>div]:inset-0 [&>div]:flex [&>div]:items-center [&>div]:justify-center",
+    heroNameIsLoading
+      ? "font-mono text-6xl leading-[1.1] tracking-[0.04em] md:text-7xl"
+      : "text-7xl leading-[1.22] [font-family:Inter,system-ui,sans-serif] md:text-9xl",
+  );
+  const heroNameRowClassName = `${heroNameIsLoading ? "m-0 block whitespace-nowrap" : "block w-auto max-w-full whitespace-nowrap pb-[0.08em] text-center"}${
     areNameCycleFontsReady && isNameCycleRunning && !isSpinnerPreviewMode
       ? " animate-[name-font-cycle_2.2s_steps(1,end)_infinite]"
       : ""
@@ -222,8 +228,12 @@ export function HeroSlide({
         {
           id: "hero-name",
           kind: "text",
-          className:
-            "relative h-[var(--slide-name-cycle-wrap-height)] w-full min-w-0 max-w-full overflow-visible px-3 pb-2 text-center [contain:layout_style] [overflow-anchor:none] [&>div]:absolute [&>div]:inset-0 [&>div]:flex [&>div]:items-center [&>div]:justify-center",
+          className: heroNameWrapperClassName,
+          pretext: {
+            maxLines: 1,
+            lineHeightRatio: heroNameIsLoading ? 1.1 : 1.22,
+            minFontScale: heroNameIsLoading ? 0.82 : 0.72,
+          },
           reveal: {
             delayMs: heroFirstRowRevealDelayMs,
           },
@@ -243,7 +253,11 @@ export function HeroSlide({
         {
           id: "hero-robots",
           kind: "text",
-          className: "px-3 text-center !text-lg md:!text-2xl",
+          className: "w-full px-3 text-center !text-lg md:!text-2xl",
+          pretext: {
+            maxLines: 1,
+            minFontScale: 0.86,
+          },
           reveal: {
             delayMs: heroRobotsRevealDelayMs,
           },
@@ -265,7 +279,15 @@ export function HeroSlide({
         {
           id: "hero-projects",
           kind: "text",
-          className: "px-3 text-center !text-lg md:!text-2xl",
+          className: "w-full px-3 text-center !text-lg md:!text-2xl",
+          pretext: {
+            maxLines: 1,
+            targetFontSizePx: {
+              mobile: 13,
+              desktop: 24,
+            },
+            minFontScale: 0.78,
+          },
           reveal: {
             delayMs: heroProjectsRevealDelayMs,
           },
@@ -315,6 +337,7 @@ export function HeroSlide({
     };
   }, [
     areNameCycleFontsReady,
+    heroNameWrapperClassName,
     heroNameIsLoading,
     heroNameRowClassName,
     isNameCycleRunning,

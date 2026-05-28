@@ -28,6 +28,7 @@ import { SHARED_UNDERLINE_LAYERS } from "../reveal/notationPresets";
 import {
   Slide,
   type SimpleNotationConfig,
+  type SimplePreTextConfig,
   type SlideConfig,
   type SimpleTextGroupConfig,
 } from "../reveal/Slide";
@@ -64,9 +65,9 @@ const postCrossOutPauseMs = scaleRevealCadenceMs(300);
 const maxRowRevealGapMs = scaleRevealCadenceMs(2000);
 // Default rough-notation animation duration (matches SHARED_UNDERLINE_LAYERS)
 const defaultAnnotationAnimationMs = 480;
-const defaultContentRowClassName = "px-3 text-center text-lg md:text-2xl";
+const defaultContentRowClassName = "w-full px-3 text-center text-lg md:text-2xl";
 const slideYearRowClassName =
-  "px-3 text-center font-semibold text-sm text-[var(--color-slate-500)]";
+  "w-full px-3 text-center font-semibold text-sm text-[var(--color-slate-500)]";
 const lightRedHighlightColor = "rgb(252 165 165 / 0.45)";
 const lightOrangeHighlightColor = "rgb(253 186 116 / 0.45)";
 const contentSlideAnchorIds = [
@@ -645,6 +646,17 @@ function toSimpleGroups(args: {
   }));
 }
 
+function getPreTextConfigForLegacyRow(
+  row: LegacySlideRowConfig,
+): SimplePreTextConfig {
+  const isYearRow = row.className === slideYearRowClassName;
+
+  return {
+    maxLines: isYearRow ? 1 : 2,
+    minFontScale: isYearRow ? 0.9 : 0.82,
+  };
+}
+
 function convertLegacySlideToSlide(
   legacySlide: LegacySlideConfig,
   slideIndex: number,
@@ -712,6 +724,7 @@ function convertLegacySlideToSlide(
         kind: "text" as const,
         className: row.className ?? defaultContentRowClassName,
         style: row.style,
+        pretext: getPreTextConfigForLegacyRow(row),
         reveal: {
           delayMs: revealDelayMs,
         },
@@ -881,6 +894,15 @@ function ContentSlideViewport({
     return Math.max(slideRevealDurationMs, whiteboardRevealDurationMs);
   }, [entry.slide, entry.whiteboardPresets]);
   const activePresets = revealed ? entry.whiteboardPresets : [];
+
+  useEffect(() => {
+    if (!skipRevealOnMount) {
+      return;
+    }
+
+    setSkipRevealDelay(true);
+    setIsRevealInProgress(false);
+  }, [skipRevealOnMount]);
 
   useEffect(() => {
     if (revealed && !skipRevealOnMount) {

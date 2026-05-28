@@ -374,10 +374,39 @@ const heroRevealSequenceDurationMs = Math.max(
 );
 const heroSlideAnchorId = "hero";
 const homeRevealPlayedStorageKey = "earthtojake.homeRevealPlayed";
+const revealDisabledQueryParamValues = new Set([
+  "0",
+  "false",
+  "no",
+  "off",
+]);
 
-function getInitialShouldSkipHomeReveal(): boolean {
+function isHomeRevealDisabledByQuery(): boolean {
   if (typeof window === "undefined") {
     return false;
+  }
+
+  const revealParam = new URLSearchParams(window.location.search).get("reveal");
+  if (revealParam === null) {
+    return false;
+  }
+
+  return revealDisabledQueryParamValues.has(
+    revealParam.trim().toLowerCase(),
+  );
+}
+
+function getInitialShouldSkipHomeReveal(disableRevealAnimations = false): boolean {
+  if (disableRevealAnimations) {
+    return true;
+  }
+
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  if (isHomeRevealDisabledByQuery()) {
+    return true;
   }
 
   try {
@@ -395,8 +424,16 @@ function markHomeRevealPlayed(): void {
   }
 }
 
-export function HomePage() {
-  const [skipHomeRevealOnMount] = useState(getInitialShouldSkipHomeReveal);
+type HomePageProps = {
+  disableRevealAnimations?: boolean;
+};
+
+export function HomePage({
+  disableRevealAnimations = false,
+}: HomePageProps) {
+  const [skipHomeRevealOnMount, setSkipHomeRevealOnMount] = useState(
+    () => getInitialShouldSkipHomeReveal(disableRevealAnimations),
+  );
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(
     getInitialSelectedMarkerId,
   );
@@ -413,6 +450,16 @@ export function HomePage() {
   useEffect(() => {
     markHomeRevealPlayed();
   }, []);
+
+  useEffect(() => {
+    if (!getInitialShouldSkipHomeReveal(disableRevealAnimations)) {
+      return;
+    }
+
+    setSkipHomeRevealOnMount(true);
+    setHeroSkipRevealDelay(true);
+    setHeroRevealInProgress(false);
+  }, [disableRevealAnimations]);
 
   useEffect(() => {
     if (heroSkipRevealDelay || heroRevealSequenceDurationMs <= 0) {
