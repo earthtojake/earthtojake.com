@@ -4,11 +4,19 @@ import {
   memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
   type ReactNode,
+  type RefObject,
 } from "react";
+import {
+  measureRichInlineStats,
+  prepareRichInline,
+  type RichInlineItem,
+  type RichInlineStats,
+} from "@chenglou/pretext/rich-inline";
 import { Polaroids, type PolaroidPhoto } from "../components/Polaroids";
 import { getLockedViewportHeight } from "../viewportLock";
 import { clamp } from "./math";
@@ -50,6 +58,21 @@ export type SimpleTextGroupConfig = {
   notation?: SimpleNotationConfig;
 };
 
+export type SimplePreTextConfig = {
+  maxLines?: number;
+  minFontScale?: number;
+  minFontSizePx?: number;
+  targetFontSizePx?:
+    | number
+    | {
+        mobile: number;
+        desktop: number;
+      };
+  desktopBreakpointPx?: number;
+  lineHeightRatio?: number;
+  reserveHeight?: boolean;
+};
+
 export type SimpleBaseRowConfig = {
   id: string;
   className?: string;
@@ -60,6 +83,7 @@ export type SimpleBaseRowConfig = {
 export type SimpleTextRowConfig = SimpleBaseRowConfig & {
   kind: "text";
   groups: SimpleTextGroupConfig[];
+  pretext?: SimplePreTextConfig;
 };
 
 export type SimpleAlbumRowConfig = SimpleBaseRowConfig & {
@@ -104,6 +128,9 @@ export type SlideProps = {
 type RowStartOverridesById = Record<string, number>;
 
 const scrollAutoRevealViewportRatio = 0.5;
+const defaultPreTextDesktopBreakpointPx = 768;
+const defaultPreTextLineHeightRatio = 1.35;
+const defaultPreTextMinFontScale = 0.82;
 
 function joinClassNames(...classNames: Array<string | undefined>): string {
   return classNames.filter(Boolean).join(" ");
@@ -166,6 +193,7 @@ function estimateRowsCompleteElapsedMs(
 type TextGroupProps = {
   group: SimpleTextGroupConfig;
   instantReveal: boolean;
+  onElement?: (element: HTMLSpanElement | null) => void;
   rowRevealStarted: boolean;
   rowRevealed: boolean;
 };
@@ -179,6 +207,7 @@ function isCrossOutNotationType(
 const TextGroup = memo(function TextGroup({
   group,
   instantReveal,
+  onElement,
   rowRevealStarted,
   rowRevealed,
 }: TextGroupProps) {
@@ -360,17 +389,357 @@ const TextGroup = memo(function TextGroup({
             {textLabel}
           </a>
         );
+  const setTextElement = useCallback(
+    (element: HTMLSpanElement | null) => {
+      if (notation) {
+        textRef.current = element;
+      }
+      onElement?.(element);
+    },
+    [notation, onElement],
+  );
 
   return (
     <span
       className={textClassName || undefined}
       style={group.style}
-      ref={notation ? textRef : undefined}
+      ref={setTextElement}
     >
       {textContent}
     </span>
   );
 });
+
+type PreTextLayoutState = {
+  fontSizePx: number;
+  lineHeightPx: number;
+  minHeightPx: number;
+};
+
+function parsePx(value: string): number | null {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function resolveFontSizePx(style: CSSStyleDeclaration): number {
+  return parsePx(style.fontSize) ?? 16;
+}
+
+function resolveLineHeightRatio(
+  style: CSSStyleDeclaration,
+  fontSizePx: number,
+): number {
+  const lineHeightPx = parsePx(style.lineHeight);
+  if (lineHeightPx !== null && fontSizePx > 0) {
+    return lineHeightPx / fontSizePx;
+  }
+
+  return defaultPreTextLineHeightRatio;
+}
+
+function resolveLetterSpacingPx(
+  style: CSSStyleDeclaration,
+  fontSizePx: number,
+): number {
+  const value = style.letterSpacing;
+  if (!value || value === "normal") {
+    return 0;
+  }
+
+  if (value.endsWith("em")) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed * fontSizePx : 0;
+  }
+
+  return parsePx(value) ?? 0;
+}
+
+function buildCanvasFont(
+  style: CSSStyleDeclaration,
+  fontSizePx: number,
+): string {
+  return [
+    style.fontStyle && style.fontStyle !== "normal" ? style.fontStyle : undefined,
+    style.fontVariantCaps && style.fontVariantCaps !== "normal"
+      ? style.fontVariantCaps
+      : undefined,
+    style.fontWeight || undefined,
+    `${fontSizePx}px`,
+    style.fontFamily || "sans-serif",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function resolvePreTextTargetFontSizePx(args: {
+  config: SimplePreTextConfig;
+  fallbackFontSizePx: number;
+  windowObject: Window;
+}): number {
+  const target = args.config.targetFontSizePx;
+  if (typeof target === "number" && Number.isFinite(target)) {
+    return Math.max(target, 1);
+  }
+
+  if (typeof target === "object" && target !== null) {
+    const breakpointPx =
+      args.config.desktopBreakpointPx ?? defaultPreTextDesktopBreakpointPx;
+    const matchesDesktop = args.windowObject.matchMedia(
+      `(min-width: ${breakpointPx}px)`,
+    ).matches;
+    return Math.max(matchesDesktop ? target.desktop : target.mobile, 1);
+  }
+
+  return Math.max(args.fallbackFontSizePx, 1);
+}
+
+function getInlinePaddingPx(style: CSSStyleDeclaration): number {
+  return (parsePx(style.paddingLeft) ?? 0) + (parsePx(style.paddingRight) ?? 0);
+}
+
+function resolvePreTextAvailableWidthPx(
+  paragraph: HTMLParagraphElement,
+  windowObject: Window,
+): number {
+  const paragraphRect = paragraph.getBoundingClientRect();
+  const rowFrame = paragraph.parentElement?.parentElement;
+  const rowFrameStyle = rowFrame
+    ? windowObject.getComputedStyle(rowFrame)
+    : null;
+  const rowInlinePaddingPx = rowFrameStyle
+    ? getInlinePaddingPx(rowFrameStyle)
+    : 0;
+  const article = paragraph.closest("article");
+  const articleWidthPx = article?.getBoundingClientRect().width ?? 0;
+  const scopedWidthPx =
+    articleWidthPx > 0 ? articleWidthPx - rowInlinePaddingPx : 0;
+  const centeredFrame = rowFrame ?? article ?? paragraph;
+  const centeredFrameRect = centeredFrame.getBoundingClientRect();
+  const centerX = centeredFrameRect.left + centeredFrameRect.width / 2;
+  const centeredVisibleWidthPx =
+    2 * Math.max(Math.min(centerX, windowObject.innerWidth - centerX), 0);
+  const visibleScopedWidthPx =
+    centeredVisibleWidthPx > 0
+      ? centeredVisibleWidthPx - rowInlinePaddingPx
+      : 0;
+
+  if (scopedWidthPx > 0 && visibleScopedWidthPx > 0) {
+    return Math.max(Math.min(scopedWidthPx, visibleScopedWidthPx), 1);
+  }
+
+  return Math.max(scopedWidthPx > 0 ? scopedWidthPx : paragraphRect.width, 1);
+}
+
+function arePreTextLayoutsEqual(
+  current: PreTextLayoutState | null,
+  next: PreTextLayoutState | null,
+): boolean {
+  if (current === next) {
+    return true;
+  }
+
+  if (current === null || next === null) {
+    return false;
+  }
+
+  return (
+    Math.abs(current.fontSizePx - next.fontSizePx) < 0.05 &&
+    Math.abs(current.lineHeightPx - next.lineHeightPx) < 0.05 &&
+    Math.abs(current.minHeightPx - next.minHeightPx) < 0.05
+  );
+}
+
+function usePreTextLayout(args: {
+  row: SimpleTextRowConfig;
+  paragraphRef: RefObject<HTMLParagraphElement | null>;
+  groupElementsByIdRef: RefObject<Record<string, HTMLSpanElement | null>>;
+}): PreTextLayoutState | null {
+  const { row, paragraphRef, groupElementsByIdRef } = args;
+  const [layoutState, setLayoutState] = useState<PreTextLayoutState | null>(null);
+
+  useLayoutEffect(() => {
+    const config = row.pretext;
+    if (!config) {
+      setLayoutState((current) => (current === null ? current : null));
+      return;
+    }
+
+    const paragraph = paragraphRef.current;
+    const windowObject = paragraph?.ownerDocument.defaultView ?? null;
+    if (!paragraph || !windowObject || typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    let frame = 0;
+    let isCancelled = false;
+
+    const measureAtFontSize = (
+      fontSizePx: number,
+      paragraphStyle: CSSStyleDeclaration,
+      paragraphFontSizePx: number,
+      availableWidthPx: number,
+    ): RichInlineStats => {
+      const items: RichInlineItem[] = row.groups.map((group) => {
+        const groupElement = groupElementsByIdRef.current[group.id];
+        const groupStyle = groupElement
+          ? windowObject.getComputedStyle(groupElement)
+          : paragraphStyle;
+        const groupFontSizePx = resolveFontSizePx(groupStyle);
+        const groupScale =
+          paragraphFontSizePx > 0 ? groupFontSizePx / paragraphFontSizePx : 1;
+        const resolvedGroupFontSizePx = Math.max(fontSizePx * groupScale, 1);
+        const marginRightPx = groupElement
+          ? parsePx(groupStyle.marginRight) ?? 0
+          : 0;
+        const linkIconWidthPx =
+          group.href && (group.showLinkIcon ?? true)
+            ? resolvedGroupFontSizePx * 0.82
+            : 0;
+
+        return {
+          text: group.text,
+          font: buildCanvasFont(groupStyle, resolvedGroupFontSizePx),
+          letterSpacing: resolveLetterSpacingPx(
+            groupStyle,
+            resolvedGroupFontSizePx,
+          ),
+          extraWidth: marginRightPx + linkIconWidthPx,
+        };
+      });
+
+      return measureRichInlineStats(
+        prepareRichInline(items),
+        Math.max(availableWidthPx, 1),
+      );
+    };
+
+    const measure = () => {
+      frame = 0;
+      if (isCancelled) {
+        return;
+      }
+
+      try {
+        const paragraphStyle = windowObject.getComputedStyle(paragraph);
+        const inheritedStyle = paragraph.parentElement
+          ? windowObject.getComputedStyle(paragraph.parentElement)
+          : paragraphStyle;
+        const availableWidthPx = resolvePreTextAvailableWidthPx(
+          paragraph,
+          windowObject,
+        );
+        if (availableWidthPx <= 0) {
+          return;
+        }
+
+        const paragraphFontSizePx = resolveFontSizePx(paragraphStyle);
+        const inheritedFontSizePx = resolveFontSizePx(inheritedStyle);
+        const targetFontSizePx = resolvePreTextTargetFontSizePx({
+          config,
+          fallbackFontSizePx: inheritedFontSizePx,
+          windowObject,
+        });
+        const minFontSizePx = Math.max(
+          config.minFontSizePx ??
+            targetFontSizePx * (config.minFontScale ?? defaultPreTextMinFontScale),
+          1,
+        );
+        const lineHeightRatio =
+          config.lineHeightRatio ??
+          resolveLineHeightRatio(paragraphStyle, paragraphFontSizePx);
+        const maxLines = Number.isFinite(config.maxLines)
+          ? Math.max(Math.floor(config.maxLines ?? 0), 1)
+          : null;
+        let resolvedFontSizePx = targetFontSizePx;
+        let stats = measureAtFontSize(
+          resolvedFontSizePx,
+          paragraphStyle,
+          paragraphFontSizePx,
+          availableWidthPx,
+        );
+
+        if (maxLines !== null && stats.lineCount > maxLines) {
+          let low = minFontSizePx;
+          let high = targetFontSizePx;
+          let bestFontSizePx = minFontSizePx;
+          let bestStats = measureAtFontSize(
+            bestFontSizePx,
+            paragraphStyle,
+            paragraphFontSizePx,
+            availableWidthPx,
+          );
+
+          for (let i = 0; i < 8; i++) {
+            const mid = (low + high) / 2;
+            const midStats = measureAtFontSize(
+              mid,
+              paragraphStyle,
+              paragraphFontSizePx,
+              availableWidthPx,
+            );
+
+            if (midStats.lineCount <= maxLines) {
+              bestFontSizePx = mid;
+              bestStats = midStats;
+              low = mid;
+            } else {
+              high = mid;
+            }
+          }
+
+          resolvedFontSizePx = bestFontSizePx;
+          stats = bestStats;
+        }
+
+        const lineCount = Math.max(stats.lineCount, 1);
+        const lineHeightPx = resolvedFontSizePx * lineHeightRatio;
+        const nextLayoutState: PreTextLayoutState = {
+          fontSizePx: resolvedFontSizePx,
+          lineHeightPx,
+          minHeightPx:
+            config.reserveHeight === false ? 0 : lineCount * lineHeightPx,
+        };
+
+        setLayoutState((current) =>
+          arePreTextLayoutsEqual(current, nextLayoutState)
+            ? current
+            : nextLayoutState,
+        );
+      } catch {
+        setLayoutState((current) => (current === null ? current : null));
+      }
+    };
+
+    const scheduleMeasure = () => {
+      if (frame) {
+        windowObject.cancelAnimationFrame(frame);
+      }
+      frame = windowObject.requestAnimationFrame(measure);
+    };
+
+    measure();
+
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
+    resizeObserver.observe(paragraph);
+    if (paragraph.parentElement) {
+      resizeObserver.observe(paragraph.parentElement);
+    }
+    windowObject.addEventListener("resize", scheduleMeasure);
+    windowObject.addEventListener("orientationchange", scheduleMeasure);
+
+    return () => {
+      isCancelled = true;
+      if (frame) {
+        windowObject.cancelAnimationFrame(frame);
+      }
+      resizeObserver.disconnect();
+      windowObject.removeEventListener("resize", scheduleMeasure);
+      windowObject.removeEventListener("orientationchange", scheduleMeasure);
+    };
+  }, [groupElementsByIdRef, paragraphRef, row]);
+
+  return layoutState;
+}
 
 type TextRowProps = {
   instantReveal: boolean;
@@ -385,14 +754,57 @@ const TextRow = memo(function TextRow({
   rowRevealStarted,
   rowRevealed,
 }: TextRowProps) {
+  const paragraphRef = useRef<HTMLParagraphElement | null>(null);
+  const groupElementsByIdRef = useRef<Record<string, HTMLSpanElement | null>>(
+    {},
+  );
+  const groupElementCallbacksByIdRef = useRef<
+    Record<string, (element: HTMLSpanElement | null) => void>
+  >({});
+  const preTextLayout = usePreTextLayout({
+    row,
+    paragraphRef,
+    groupElementsByIdRef,
+  });
+  const getGroupElementCallback = useCallback((groupId: string) => {
+    const existingCallback = groupElementCallbacksByIdRef.current[groupId];
+    if (existingCallback) {
+      return existingCallback;
+    }
+
+    const callback = (element: HTMLSpanElement | null) => {
+      if (element) {
+        groupElementsByIdRef.current[groupId] = element;
+        return;
+      }
+
+      delete groupElementsByIdRef.current[groupId];
+    };
+
+    groupElementCallbacksByIdRef.current[groupId] = callback;
+    return callback;
+  }, []);
+  const paragraphStyle = preTextLayout
+    ? ({
+        "--pretext-font-size": `${preTextLayout.fontSizePx}px`,
+        fontSize: "var(--pretext-font-size)",
+        lineHeight: `${preTextLayout.lineHeightPx}px`,
+        minHeight:
+          preTextLayout.minHeightPx > 0
+            ? `${preTextLayout.minHeightPx}px`
+            : undefined,
+      } as CSSProperties)
+    : undefined;
+
   return (
-    <p className="m-0 leading-[1.35]">
+    <p ref={paragraphRef} className="m-0 leading-[1.35]" style={paragraphStyle}>
       <span>
         {row.groups.map((group) => (
           <TextGroup
             key={group.id}
             group={group}
             instantReveal={instantReveal}
+            onElement={getGroupElementCallback(group.id)}
             rowRevealStarted={rowRevealStarted}
             rowRevealed={rowRevealed}
           />
