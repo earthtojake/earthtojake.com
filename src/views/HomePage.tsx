@@ -396,17 +396,13 @@ function isHomeRevealDisabledByQuery(): boolean {
   );
 }
 
-function getInitialShouldSkipHomeReveal(disableRevealAnimations = false): boolean {
-  if (disableRevealAnimations) {
-    return true;
-  }
+function shouldForceInstantHomeReveal(disableRevealAnimations = false): boolean {
+  return disableRevealAnimations || isHomeRevealDisabledByQuery();
+}
 
+function hasHomeRevealPlayed(): boolean {
   if (typeof window === "undefined") {
     return false;
-  }
-
-  if (isHomeRevealDisabledByQuery()) {
-    return true;
   }
 
   try {
@@ -432,7 +428,7 @@ export function HomePage({
   disableRevealAnimations = false,
 }: HomePageProps) {
   const [skipHomeRevealOnMount, setSkipHomeRevealOnMount] = useState(
-    () => getInitialShouldSkipHomeReveal(disableRevealAnimations),
+    disableRevealAnimations,
   );
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(
     getInitialSelectedMarkerId,
@@ -448,11 +444,15 @@ export function HomePage({
       ?.color ?? null;
 
   useEffect(() => {
-    markHomeRevealPlayed();
-  }, []);
+    if (shouldForceInstantHomeReveal(disableRevealAnimations)) {
+      setSkipHomeRevealOnMount(true);
+      setHeroSkipRevealDelay(true);
+      setHeroRevealInProgress(false);
+      return;
+    }
 
-  useEffect(() => {
-    if (!getInitialShouldSkipHomeReveal(disableRevealAnimations)) {
+    if (!hasHomeRevealPlayed()) {
+      markHomeRevealPlayed();
       return;
     }
 
