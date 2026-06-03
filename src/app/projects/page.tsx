@@ -26,6 +26,17 @@ export default function ProjectsPage() {
         </li>
         <li>
           <a
+            href="https://www.implicit.sh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            implicit.js
+          </a>
+          , a way to program 3d models with mathematical functions
+        </li>
+        <li>
+          <a
             href="https://www.step.parts"
             target="_blank"
             rel="noopener noreferrer"
