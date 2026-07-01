@@ -38,7 +38,7 @@ const heroContactLinksByChannel: Record<HeroContactChannel, HeroContactLink> = {
   },
   instagram: {
     id: "instagram",
-    href: "https://www.instagram.com/earthtojake__/",
+    href: "https://www.instagram.com/earthtojake_/",
     label: "instagram",
     target: "_blank",
     rel: "noopener noreferrer",
