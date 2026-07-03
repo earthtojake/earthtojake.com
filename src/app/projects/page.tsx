@@ -123,7 +123,12 @@ export default function ProjectsPage() {
             className="underline"
           >
             touchgrass.fm
-          </a>
+          </a>{" "}
+          <ProjectIconLink
+            icon="github"
+            href="https://github.com/earthtojake/touchgrass"
+            label="touchgrass.fm on github"
+          />
         </li>
         <li>
           <a
