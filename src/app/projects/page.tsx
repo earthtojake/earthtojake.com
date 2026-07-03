@@ -131,16 +131,6 @@ export default function ProjectsPage() {
           />
         </li>
         <li>
-          <a
-            href="https://sim.earthtojake.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            multiplayer physics simulator
-          </a>
-        </li>
-        <li>
           a{" "}
           <a
             href="https://mbb.earthtojake.com"
