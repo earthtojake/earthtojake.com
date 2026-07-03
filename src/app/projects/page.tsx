@@ -26,6 +26,26 @@ export default function ProjectsPage() {
         </li>
         <li>
           <a
+            href="https://www.armcade.tv"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            armcade.tv
+          </a>
+          , a{" "}
+          <a
+            href="https://x.com/i/broadcasts/1AxRnnWnQyYxl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            livestream
+          </a>{" "}
+          of pvp chess robots being teleoperated by random players
+        </li>
+        <li>
+          <a
             href="https://www.implicit.sh"
             target="_blank"
             rel="noopener noreferrer"
