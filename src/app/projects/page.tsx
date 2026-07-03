@@ -85,22 +85,6 @@ export default function ProjectsPage() {
         </li>
         <li>
           <a
-            href="https://www.implicit.sh"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            implicit.js
-          </a>
-          , a way to program 3d models with mathematical functions{" "}
-          <ProjectIconLink
-            icon="github"
-            href="https://github.com/earthtojake/implicit.js"
-            label="implicit.js on github"
-          />
-        </li>
-        <li>
-          <a
             href="https://www.step.parts"
             target="_blank"
             rel="noopener noreferrer"
@@ -113,6 +97,27 @@ export default function ProjectsPage() {
             icon="github"
             href="https://github.com/earthtojake/step.parts"
             label="step.parts on github"
+          />{" "}
+          <ProjectIconLink
+            icon="x"
+            href="https://x.com/earthtojake/status/2054716756690948107?s=46"
+            label="step.parts on x"
+          />
+        </li>
+        <li>
+          <a
+            href="https://www.implicit.sh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            implicit.js
+          </a>
+          , a way to program 3d models with mathematical functions{" "}
+          <ProjectIconLink
+            icon="github"
+            href="https://github.com/earthtojake/implicit.js"
+            label="implicit.js on github"
           />
         </li>
         <li>
