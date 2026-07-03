@@ -73,6 +73,11 @@ export default function ProjectsPage() {
           </a>
           , remote controlled pvp chess robots{" "}
           <ProjectIconLink
+            icon="github"
+            href="https://github.com/earthtojake/armcade"
+            label="armcade on github"
+          />{" "}
+          <ProjectIconLink
             icon="x"
             href="https://x.com/AmeliaRodrigJan/status/2072832945556181254/video/1?s=46"
             label="armcade on x"
