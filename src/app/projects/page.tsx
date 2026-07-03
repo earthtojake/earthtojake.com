@@ -38,23 +38,14 @@ export default function ProjectsPage() {
       <ul className="list-disc space-y-2 pl-5 text-lg">
         <li>
           <a
-            href="https://github.com/earthtojake/text-to-cad"
+            href="https://cadskills.xyz"
             target="_blank"
             rel="noopener noreferrer"
             className="underline"
           >
             text-to-cad
           </a>
-          , a set of{" "}
-          <a
-            href="https://cadskills.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            skills
-          </a>{" "}
-          to generate 3d cad models{" "}
+          , open source agent skills for cad and 3d modeling{" "}
           <ProjectIconLink
             icon="github"
             href="https://github.com/earthtojake/text-to-cad"
