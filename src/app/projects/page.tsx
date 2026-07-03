@@ -79,7 +79,7 @@ export default function ProjectsPage() {
           />{" "}
           <ProjectIconLink
             icon="x"
-            href="https://x.com/0xBassey/status/2072844519364604348/video/1?s=46"
+            href="https://x.com/earthtojake/status/2072444428363661316?s=46"
             label="armcade on x"
           />
         </li>
