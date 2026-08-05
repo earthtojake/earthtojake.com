@@ -251,7 +251,7 @@ export function HeroSlide({
         {
           id: "hero-projects",
           kind: "text",
-          className: "w-full px-3 text-center !text-lg md:!text-2xl",
+          className: "-mt-2 w-full px-3 text-center !text-lg md:!text-2xl",
           pretext: {
             maxLines: 1,
             targetFontSizePx: {
