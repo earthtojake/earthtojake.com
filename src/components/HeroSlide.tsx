@@ -72,10 +72,8 @@ const heroIntroPresetForRevealTiming: WhiteboardPresetConfig = {
 const heroFirstRowRevealDelayMs =
   estimateWhiteboardPresetIntroDurationMs(heroIntroPresetForRevealTiming) +
   heroAutoRevealDelayAfterIntroMs;
-const heroRobotsRevealDelayMs =
-  heroFirstRowRevealDelayMs + heroRowRevealCadenceMs;
 const heroProjectsRevealDelayMs =
-  heroRobotsRevealDelayMs + heroRowRevealCadenceMs;
+  heroFirstRowRevealDelayMs + heroRowRevealCadenceMs;
 const heroContactsRevealDelayMs =
   heroProjectsRevealDelayMs + heroRowRevealCadenceMs;
 
@@ -251,35 +249,9 @@ export function HeroSlide({
           ],
         },
         {
-          id: "hero-robots",
-          kind: "text",
-          className: "w-full px-3 text-center !text-lg md:!text-2xl",
-          pretext: {
-            maxLines: 1,
-            minFontScale: 0.86,
-          },
-          reveal: {
-            delayMs: heroRobotsRevealDelayMs,
-          },
-          groups: [
-            {
-              id: "hero-robots-prefix",
-              text: "interested in ",
-            },
-            {
-              id: "hero-robots-link",
-              text: "robots",
-              hoverText: "clankers",
-              href: "#robots",
-              linkAppearance: "unstyled",
-              showLinkIcon: false,
-            },
-          ],
-        },
-        {
           id: "hero-projects",
           kind: "text",
-          className: "w-full px-3 text-center !text-lg md:!text-2xl",
+          className: "-mt-2 w-full px-3 text-center !text-lg md:!text-2xl",
           pretext: {
             maxLines: 1,
             targetFontSizePx: {
@@ -293,10 +265,10 @@ export function HeroSlide({
           },
           groups: [
             {
-              id: "hero-cadskills-link",
-              text: "cadskills.xyz",
+              id: "hero-text-to-cad-link",
+              text: "text-to-cad",
               className: "mr-4 md:mr-5",
-              href: "https://cadskills.xyz",
+              href: "https://texttocad.dev",
               target: "_blank",
               rel: "noopener noreferrer",
               linkAppearance: "unstyled",
@@ -304,10 +276,10 @@ export function HeroSlide({
               notation: keywordUnderline(UNDERLINE_BLUE),
             },
             {
-              id: "hero-step-parts-link",
-              text: "step.parts",
+              id: "hero-derive-link",
+              text: "derive.xyz",
               className: "mr-4 md:mr-5",
-              href: "https://step.parts",
+              href: "https://derive.xyz",
               target: "_blank",
               rel: "noopener noreferrer",
               linkAppearance: "unstyled",

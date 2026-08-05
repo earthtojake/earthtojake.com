@@ -39,10 +39,8 @@ const heroRowRevealCadenceMs = scaleRevealCadenceMs(
   heroRowRevealDurationMs + heroInterRowRevealDelayMs,
 );
 const heroFirstRowRevealStartMs = 0;
-const heroRobotsRevealStartMs =
-  heroFirstRowRevealStartMs + heroRowRevealCadenceMs;
 const heroProjectsRevealStartMs =
-  heroRobotsRevealStartMs + heroRowRevealCadenceMs;
+  heroFirstRowRevealStartMs + heroRowRevealCadenceMs;
 const heroContactsRevealStartMs =
   heroProjectsRevealStartMs + heroRowRevealCadenceMs;
 const heroContactsRevealEndMs =
